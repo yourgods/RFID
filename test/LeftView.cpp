@@ -62,7 +62,7 @@ void CLeftView::OnInitialUpdate()
 	// TODO: 调用 GetTreeCtrl() 直接访问 TreeView 的树控件，
 	//  从而可以用项填充 TreeView。
 	HTREEITEM hItem;
-	for(int i =0 ; i<(sizeof(Table)/sizeof(Table[0])); i++){
+	for(int i =0 ; i<12; i++){
 		hItem = GetTreeCtrl().InsertItem(Table[i].chineseName, TVI_ROOT);
 		GetTreeCtrl().InsertItem(_T("添加") + Table[i].chineseName, hItem);
 	}

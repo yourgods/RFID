@@ -189,6 +189,10 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
+				RelativePath=".\BusInfo.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\ClassInfoInput.cpp"
 				>
 			</File>
@@ -205,6 +209,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\DriverInfoInput.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\LeftView.cpp"
 				>
 			</File>
@@ -214,6 +222,10 @@
 			</File>
 			<File
 				RelativePath=".\message.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\ParentInfoInput.cpp"
 				>
 			</File>
 			<File
@@ -257,6 +269,14 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\StudentInfoInput.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\TeacherInfoInput.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\test.cpp"
 				>
 			</File>
@@ -279,6 +299,10 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
+				RelativePath=".\BusInfo.h"
+				>
+			</File>
+			<File
 				RelativePath=".\ClassInfoInput.h"
 				>
 			</File>
@@ -299,6 +323,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\DriverInfoInput.h"
+				>
+			</File>
+			<File
 				RelativePath=".\LeftView.h"
 				>
 			</File>
@@ -308,6 +336,10 @@
 			</File>
 			<File
 				RelativePath=".\message.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ParentInfoInput.h"
 				>
 			</File>
 			<File
@@ -339,7 +371,15 @@
 				>
 			</File>
 			<File
+				RelativePath=".\StudentInfoInput.h"
+				>
+			</File>
+			<File
 				RelativePath=".\targetver.h"
+				>
+			</File>
+			<File
+				RelativePath=".\TeacherInfoInput.h"
 				>
 			</File>
 			<File

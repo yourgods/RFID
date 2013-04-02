@@ -84,29 +84,6 @@ END_MESSAGE_MAP()
 
 
 // CSchoolInfoInput 消息处理程序
-#if 0
-struct item{
-	CString name;
-	enum enum_field_types valueType;
-	CString value;
-};
-
-struct update{
-	CString name;
-	int itemQuery;
-	int itemUpdate;
-	struct item itemValue[20];
-};
-
-struct fieldAttr
-{
-	bool primaryKey;
-	enum enum_field_types fieldType;
-	CString fieldName;
-	CString chineseName;
-};
-#endif
-
 void CSchoolInfoInput::OnBnClickedOk2()
 {
 	// TODO: 在此添加控件通知处理程序代码

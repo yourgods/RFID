@@ -11,6 +11,11 @@
 #define IDD_SETTING                     129
 #define IDD_DIALOG1                     130
 #define IDD_DIALOG2                     131
+#define IDD_DIALOG3                     132
+#define IDD_DIALOG4                     133
+#define IDD_DIALOG5                     134
+#define IDD_DIALOG6                     135
+#define IDD_DIALOG7                     136
 #define IDC_NO                          1000
 #define IDC_COM                         1000
 #define IDC_NAME                        1001
@@ -22,6 +27,18 @@
 #define IDC_REMARK                      1005
 #define IDC_EDIT3                       1008
 #define IDC_SCHOOL                      1009
+#define IDC_AGE                         1012
+#define IDC_MOBILE                      1013
+#define IDC_ADDR                        1015
+#define IDC_SEX                         1017
+#define IDC_PARENT                      1018
+#define IDC_TEACHER                     1019
+#define IDC_CLASS                       1020
+#define IDC_EDIT1                       1021
+#define IDC_EDIT2                       1022
+#define IDC_EDIT4                       1023
+#define IDC_EDIT5                       1025
+#define IDC_EDIT6                       1027
 #define ID_32771                        32771
 #define ID_32772                        32772
 
@@ -29,9 +46,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        132
+#define _APS_NEXT_RESOURCE_VALUE        137
 #define _APS_NEXT_COMMAND_VALUE         32773
-#define _APS_NEXT_CONTROL_VALUE         1010
+#define _APS_NEXT_CONTROL_VALUE         1028
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

@@ -6,27 +6,13 @@
 #include "Resource.h"
 #include "SchoolInfoInput.h"
 #include "ClassInfoInput.h"
-#if 0
-struct fieldAttr
-{
-	bool primaryKey;
-	enum enum_field_types fieldType;
-	CString fieldName;
-	CString chineseName;
-};
+#include "TeacherInfoInput.h"
+#include "ParentInfoInput.h"
+#include "StudentInfoInput.h"
+#include "BusInfo.h"
+#include "DriverInfoInput.h"
 
-struct table{
-	CString name;  //数据库表名
-	CString chineseName;
-	int (*lpfCreateDlg)(CtestDoc *doc);
-	int (*lpfQueryRight)(CArray<db_rest, db_rest> &rest);
-	int itemKeyCount; //主键个数
-	int itemOthersCount; //其他列个数
-	struct fieldAttr fieldValue[15]; //各列的属性
-};
-#endif
-
-extern struct table Table[13] = 
+extern struct table Table[15] = 
 {
 	//学校信息
 	{
@@ -66,8 +52,8 @@ extern struct table Table[13] =
 	{
 		_T("teacher"),
 		_T("教师信息"),
-		NULL,
-		NULL,
+		TeacherInfoCreateDlg,
+		TeacherInfoQueryRight,
 		1,
 		7,
 		{true, MYSQL_TYPE_STRING, _T("teacher_ID"), _T("教师编号"),
@@ -84,8 +70,8 @@ extern struct table Table[13] =
 	{
 		 _T("parent"),
 		 _T("家长信息"),
-		 NULL,
-		 NULL,
+		 ParentInfoCreateDlg,
+		 ParentInfoQueryRight,
 		 1,
 		 6,
 		 {true, MYSQL_TYPE_STRING, _T("parent_ID"), _T("家长编号"),
@@ -101,8 +87,8 @@ extern struct table Table[13] =
 	{
 		 _T("student"),
 		 _T("学生信息"),
-		 NULL,
-		 NULL,
+		 StudentInfoCreateDlg,
+		 StudentInfoQueryRight,
 		 1,
 		 6,
 		 {true, MYSQL_TYPE_STRING, _T("student_ID"), _T("学生编号"),
@@ -118,8 +104,8 @@ extern struct table Table[13] =
 	{
 		_T("bus"),
 		_T("校车信息"),
-		NULL,
-		NULL,
+		BusInfoCreateDlg,
+		BusInfoQueryRight,
 		1, 
 		5,
 		{true, MYSQL_TYPE_STRING, _T("bus_ID"), _T("车牌号"),
@@ -134,8 +120,8 @@ extern struct table Table[13] =
 	{
 		_T("driver"),
 		_T("司机信息"),
-		NULL,
-		NULL,
+		DriverInfoCreateDlg,
+		DriverInfoQueryRight,
 		1,
 		7,
 		{true, MYSQL_TYPE_STRING, _T("driver_ID"), _T("司机编号"),
@@ -239,6 +225,34 @@ extern struct table Table[13] =
 		2,
 		{true, MYSQL_TYPE_STRING, _T("class_ID"), _T("班级编号"),
 		false, MYSQL_TYPE_STRING, _T("school_ID"), _T("学校编号"),
+		false, MYSQL_TYPE_VAR_STRING, _T("remark"), _T("备注")
+		}
+	},
+	//学生家长关系表格
+	{
+		_T("stu_par"),
+		_T("学生家长关系"),
+		NULL,
+		NULL,
+		1,
+		3,
+		{true, MYSQL_TYPE_STRING, _T("student_ID"), _T("学生编号"),
+		false, MYSQL_TYPE_STRING, _T("parent_ID"), _T("家长编号"),
+		false, MYSQL_TYPE_STRING, _T("relation"), _T("学生家长关系"),
+		false, MYSQL_TYPE_VAR_STRING, _T("remark"), _T("备注")
+		}
+	},
+	//学生教师班级关系表格
+	{
+		_T("stu_tea_cla"),
+		_T("学生教师班级关系"),
+		NULL,
+		NULL,
+		1,
+		3,
+		{true, MYSQL_TYPE_STRING, _T("student_ID"), _T("学生编号"),
+		false, MYSQL_TYPE_STRING, _T("class_ID"), _T("班级编号"),
+		false, MYSQL_TYPE_STRING, _T("teacher_ID"), _T("教师编号"),
 		false, MYSQL_TYPE_VAR_STRING, _T("remark"), _T("备注")
 		}
 	}
