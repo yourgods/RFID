@@ -10,7 +10,8 @@
 #include "mysql.h"
 #include "mysql_com.h"
 
-int ClassInfoCreateDlg(CtestDoc *doc){
+int ClassInfoCreateDlg(CtestDoc *doc)
+{
 	CClassInfoInput dlg;
 	while(dlg.DoModal()==IDOK)
 		doc->UpdateAllViews(NULL);
@@ -60,9 +61,12 @@ int ClassInfoQueryRight(CArray<rowItem, rowItem> &rest)
 		}
 		temp.CI[i].name = _T("school.name");
 		temp.CI[i].chineseName = _T("所属学校");
+		temp.CI[i].valueType = MYSQL_TYPE_STRING;
+		temp.CI[i].value = _T("");
+		i++;
 		temp.CI[i].name = _T("class.") + Table[index].fieldValue[Table[index].itemKeyCount + Table[index].itemOthersCount-1].fieldName;
 		temp.CI[i].chineseName = Table[index].fieldValue[Table[index].itemKeyCount + Table[index].itemOthersCount-1].chineseName;
-		temp.CI[i].valueType = MYSQL_TYPE_STRING;
+		temp.CI[i].valueType = Table[index].fieldValue[Table[index].itemKeyCount + Table[index].itemOthersCount-1].fieldType;
 		temp.CI[i].value = _T("");
 		rest.Add(temp);
 	}
@@ -101,39 +105,6 @@ BEGIN_MESSAGE_MAP(CClassInfoInput, CDialog)
 	ON_BN_CLICKED(IDOK, &CClassInfoInput::OnBnClickedOk)
 	ON_BN_CLICKED(IDCANCEL, &CClassInfoInput::OnBnClickedCancel)
 END_MESSAGE_MAP()
-
-
-#if 0
-struct item{
-	CString name;
-	enum enum_field_types valueType;
-	CString value;
-};
-
-struct update{
-	CString name;
-	int itemQuery;
-	int itemUpdate;
-	struct item itemValue[20];
-};
-
-struct fieldAttr{
-	bool primaryKey;
-	enum enum_field_types fieldType;
-	CString fieldName;
-	CString chineseName;
-};
-
-struct table{
-	CString name;  //数据库表名
-	CString chineseName;
-	int (*lpfCreateDlg)(CtestDoc *doc);
-	int itemKeyCount; //主键个数
-	int itemOthersCount; //其他列个数
-	struct fieldAttr fieldValue[15]; //各列的属性
-};
-
-#endif
 
 // CClassInfoInput 消息处理程序
 

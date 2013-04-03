@@ -6,5 +6,8 @@
 bool parseBusDepart(char *msg, struct update *update);
 bool parseBusRun(char *msg, struct update *update);
 bool parseBusStudent(char *msg, struct update *update);
+int BusRunInfoQueryRight(CArray<rowItem, rowItem> &rest);
+int BusDepartInfoQueryRight(CArray<rowItem, rowItem> &rest);
+int BusStudentInfoQueryRight(CArray<rowItem, rowItem> &rest);
 
 #endif

@@ -208,9 +208,9 @@ UINT Recv_Thread(LPVOID pParam){
 	CSmsTraffic *gsm = pDoc->gsm;
 	SM_PARAM param;
 	int nState = true;
-	char *msg = param.TP_UD;
 	while(nState){
 		if(gsm->GetRecvMessage(&param)){
+			char *msg = param.TP_UD;
 			char *currPos = strstr(msg, ",");
 			int msgId = char2int(msg, currPos - msg);
 			msg = currPos + 1;
@@ -234,6 +234,7 @@ UINT Recv_Thread(LPVOID pParam){
 		}else{
 			Sleep(1000);
 		}
+		//pDoc->UpdateAllViews(NULL);
 		DWORD dwEvent = WaitForSingleObject(pDoc->m_hKillThreadEvent, 20);
 		if (dwEvent == WAIT_OBJECT_0)  nState = false;
 	}

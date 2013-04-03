@@ -64,7 +64,8 @@ void CLeftView::OnInitialUpdate()
 	HTREEITEM hItem;
 	for(int i =0 ; i<12; i++){
 		hItem = GetTreeCtrl().InsertItem(Table[i].chineseName, TVI_ROOT);
-		GetTreeCtrl().InsertItem(_T("添加") + Table[i].chineseName, hItem);
+		if(Table[i].chineseName.Find(_T("关系")) == -1)
+			GetTreeCtrl().InsertItem(_T("添加") + Table[i].chineseName, hItem);
 	}
 }
 
@@ -75,7 +76,7 @@ void CLeftView::OnLButtonDblClk(UINT nFlags, CPoint point)
 	CString temp = GetTreeCtrl().GetItemText(hItem);
 	if(temp.Find(_T("添加")) == -1){
 		//增加“添加****”子条目
-		if(GetTreeCtrl().GetParentItem(hItem) == NULL && GetTreeCtrl().ItemHasChildren(hItem) == 0){
+		if(GetTreeCtrl().GetParentItem(hItem) == NULL && GetTreeCtrl().ItemHasChildren(hItem) == 0&&temp.Find(_T("关系")) == -1){
 			CString subItemText = _T("添加");
 			subItemText.Append(temp);
 			GetTreeCtrl().InsertItem(subItemText, hItem);
@@ -88,7 +89,7 @@ void CLeftView::OnLButtonDblClk(UINT nFlags, CPoint point)
 		//弹出对话框,输入相应的数字
 		int index = 0;
 		for(index = 0; index<(sizeof(Table)/sizeof(Table[0])); index++){
-			if(parentName.Find(Table[index].chineseName) != -1){
+			if(parentName.Compare(Table[index].chineseName) == 0){
 				break;
 			}
 		}

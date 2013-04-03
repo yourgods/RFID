@@ -115,54 +115,98 @@ bool parseBusStudent(char *msg, struct update *update)
 	//remark is null
 }
 
-// parseMsg return value as follows:
-//
-//·         CR_COMMANDS_OUT_OF_SYNC 
-//
-//以不恰当的顺序执行了命令。 
-//
-//·         CR_SERVER_GONE_ERROR 
-//
-//MySQL服务器不可用。 
-//
-//·         CR_SERVER_LOST 
-//
-//在查询过程中，与服务器的连接丢失。 
-//
-//·         CR_UNKNOWN_ERROR 
-//
-//出现未知错误。 
-
-#if 0
-int parseMsg(MYSQL *mysql, char *msg, CString &str){
-	int ret = UNKNOW_MSG;
-	MYSQL_RES *res = NULL;
-	char *prevPos = 0, *currPos = 0;
-	char inst[256] = {0};
-	currPos = strstr(msg, ",");
-	int msgId = char2int(msg, currPos-prevPos);
-	msg = currPos + 1;
-	switch(msgId){
-	case 1: //bus_depart message
-		struct bus_depart Bus_Depart;
-		parseBusDepart(msg, &Bus_Depart);
-		
-		break;
-	case 2: //bus_run message
-		struct bus_run Bus_Run;
-		parseBusRun(msg, &Bus_Run);
-		
-		break;
-	case 3: //bus_stu message
-		struct bus_stu Bus_Student;
-		parseBusStudent(msg, &Bus_Student);
-		
-		break;
-	default:
-		
-		ret = 0;
-		break;
+int BusRunInfoQueryRight(CArray<rowItem, rowItem> &rest)
+{
+	int index = 0;
+	for(index = 0; index<(sizeof(Table)/sizeof(Table[0])); index++){
+		if(Table[index].name.Compare(_T("bus_run")) == 0)
+			break;
 	}
-	return ret;
+
+	struct query query;
+	query.from = _T("bus_run");
+	query.selectedItemCount = Table[index].itemKeyCount + Table[index].itemOthersCount;
+	for(int i = 0; i<query.selectedItemCount; i++){
+		query.SI[i].name = Table[index].fieldValue[i].fieldName;
+		query.SI[i].chineseName = Table[index].fieldValue[i].chineseName;
+	}
+	query.whereItemCount = 0;
+	query.otherTerm = _T("");
+	Query(&query, rest);
+	if(rest.GetCount() == 0){
+		rowItem temp;
+		temp.fieldCount = Table[index].itemKeyCount + Table[index].itemOthersCount;
+		for(int i = 0; i<temp.fieldCount; i++){
+			temp.CI[i].chineseName = Table[index].fieldValue[i].chineseName;
+			temp.CI[i].name = Table[index].fieldValue[i].fieldName;
+			temp.CI[i].valueType = Table[index].fieldValue[i].fieldType;
+		}
+		rest.Add(temp);
+	}
+
+	return TRUE;
 }
-#endif
+
+int BusDepartInfoQueryRight(CArray<rowItem, rowItem> &rest)
+{
+	int index = 0;
+	for(index = 0; index<(sizeof(Table)/sizeof(Table[0])); index++){
+		if(Table[index].name.Compare(_T("bus_depart")) == 0)
+			break;
+	}
+
+	struct query query;
+	query.from = _T("bus_depart");
+	query.selectedItemCount = Table[index].itemKeyCount + Table[index].itemOthersCount;
+	for(int i = 0; i<query.selectedItemCount; i++){
+		query.SI[i].name = Table[index].fieldValue[i].fieldName;
+		query.SI[i].chineseName = Table[index].fieldValue[i].chineseName;
+	}
+	query.whereItemCount = 0;
+	query.otherTerm = _T("");
+	Query(&query, rest);
+	if(rest.GetCount() == 0){
+		rowItem temp;
+		temp.fieldCount = Table[index].itemKeyCount + Table[index].itemOthersCount;
+		for(int i = 0; i<temp.fieldCount; i++){
+			temp.CI[i].chineseName = Table[index].fieldValue[i].chineseName;
+			temp.CI[i].name = Table[index].fieldValue[i].fieldName;
+			temp.CI[i].valueType = Table[index].fieldValue[i].fieldType;
+		}
+		rest.Add(temp);
+	}
+
+	return TRUE;
+}
+
+int BusStudentInfoQueryRight(CArray<rowItem, rowItem> &rest)
+{
+	int index = 0;
+	for(index = 0; index<(sizeof(Table)/sizeof(Table[0])); index++){
+		if(Table[index].name.Compare(_T("bus_stu")) == 0)
+			break;
+	}
+
+	struct query query;
+	query.from = _T("bus_stu");
+	query.selectedItemCount = Table[index].itemKeyCount + Table[index].itemOthersCount;
+	for(int i = 0; i<query.selectedItemCount; i++){
+		query.SI[i].name = Table[index].fieldValue[i].fieldName;
+		query.SI[i].chineseName = Table[index].fieldValue[i].chineseName;
+	}
+	query.whereItemCount = 0;
+	query.otherTerm = _T("");
+	Query(&query, rest);
+	if(rest.GetCount() == 0){
+		rowItem temp;
+		temp.fieldCount = Table[index].itemKeyCount + Table[index].itemOthersCount;
+		for(int i = 0; i<temp.fieldCount; i++){
+			temp.CI[i].chineseName = Table[index].fieldValue[i].chineseName;
+			temp.CI[i].name = Table[index].fieldValue[i].fieldName;
+			temp.CI[i].valueType = Table[index].fieldValue[i].fieldType;
+		}
+		rest.Add(temp);
+	}
+
+	return TRUE;
+}

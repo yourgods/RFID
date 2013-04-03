@@ -11,8 +11,11 @@
 #include "StudentInfoInput.h"
 #include "BusInfo.h"
 #include "DriverInfoInput.h"
+#include "RoadInfoInput.h"
+#include "StationInfoInput.h"
+#include "message.h"
 
-extern struct table Table[15] = 
+extern struct table Table[16] = 
 {
 	//学校信息
 	{
@@ -138,8 +141,8 @@ extern struct table Table[15] =
 	{
 		_T("road"),
 		_T("校车线路信息"),
-		NULL,
-		NULL,
+		RoadInfoCreateDlg,
+		RoadInfoQueryRight,
 		1,
 		4,
 		{true, MYSQL_TYPE_STRING, _T("road_ID"), _T("线路编号"),
@@ -153,8 +156,8 @@ extern struct table Table[15] =
 	{
 		_T("station"),
 		_T("站点信息"),
-		NULL,
-		NULL,
+		StationInfoCreateDlg,
+		StationInfoQueryRight,
 		1,
 		2,
 		{true, MYSQL_TYPE_STRING, _T("station_ID"), _T("站点编号"),
@@ -167,7 +170,7 @@ extern struct table Table[15] =
 		_T("bus_depart"),
 		_T("发车次信息"),
 		NULL,
-		NULL,
+		BusDepartInfoQueryRight,
 		1,
 		6,
 		{true, MYSQL_TYPE_STRING, _T("bus_run_ID"), _T("校车运行编号"),
@@ -184,7 +187,7 @@ extern struct table Table[15] =
 		_T("bus_run"),
 		_T("校车运行信息"),
 		NULL,
-		NULL,
+		BusRunInfoQueryRight,
 		1,
 		8,
 		{true, MYSQL_TYPE_LONG, _T("ID"), _T("条目编号"),
@@ -203,7 +206,7 @@ extern struct table Table[15] =
 		_T("bus_stu"),
 		_T("校车学生信息"),
 		NULL,
-		NULL,
+		BusStudentInfoQueryRight,
 		2,
 		5,
 		{true, MYSQL_TYPE_STRING, _T("bus_run_ID"), _T("校车运行编号"),
@@ -253,6 +256,19 @@ extern struct table Table[15] =
 		{true, MYSQL_TYPE_STRING, _T("student_ID"), _T("学生编号"),
 		false, MYSQL_TYPE_STRING, _T("class_ID"), _T("班级编号"),
 		false, MYSQL_TYPE_STRING, _T("teacher_ID"), _T("教师编号"),
+		false, MYSQL_TYPE_VAR_STRING, _T("remark"), _T("备注")
+		}
+	},
+	//线路站点关系信息
+	{
+		_T("road_station"),
+		_T("线路站点关系"),
+		NULL,
+		NULL,
+		1,
+		2,
+		{true, MYSQL_TYPE_STRING, _T("road_ID"), _T("线路编号"),
+		false, MYSQL_TYPE_STRING, _T("station_ID"), _T("站点编号"),
 		false, MYSQL_TYPE_VAR_STRING, _T("remark"), _T("备注")
 		}
 	}

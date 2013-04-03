@@ -233,6 +233,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\RoadInfoInput.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\SchoolInfoInput.cpp"
 				>
 			</File>
@@ -246,6 +250,10 @@
 			</File>
 			<File
 				RelativePath=".\SmsTraffic.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\StationInfoInput.cpp"
 				>
 			</File>
 			<File
@@ -351,6 +359,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\RoadInfoInput.h"
+				>
+			</File>
+			<File
 				RelativePath=".\SchoolInfoInput.h"
 				>
 			</File>
@@ -364,6 +376,10 @@
 			</File>
 			<File
 				RelativePath=".\SmsTraffic.h"
+				>
+			</File>
+			<File
+				RelativePath=".\StationInfoInput.h"
 				>
 			</File>
 			<File
