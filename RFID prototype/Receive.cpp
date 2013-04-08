@@ -21,8 +21,6 @@ CReceive::CReceive(CWnd* pParent /*=NULL*/)
 CReceive::CReceive(void *pVoid, CWnd* pParent)
 	:CDialog(CReceive::IDD, pParent)
 {
-	CRFIDprototypeDlg *pp = (CRFIDprototypeDlg *)pVoid;
-	gsm = pp->gsm;
 }
 #endif
 
@@ -50,21 +48,6 @@ BOOL CReceive::OnInitDialog()
 	m_list.SetExtendedStyle(LVS_EX_GRIDLINES | LVS_EX_FULLROWSELECT);
 	m_list.InsertColumn(0,_T("短信发送方"),LVCFMT_LEFT,80);
  	m_list.InsertColumn(1,_T("内容"),LVCFMT_LEFT,550);
-
-	Show();
-	return TRUE;
-}
-
-BOOL CReceive::Show(){
-	SM_PARAM tmp;
-	int i = 0;
-	while(gsm->GetRecvMessage(&tmp)){
-		CString strFrom(tmp.TPA);
-		CString strMsg(tmp.TP_UD);
-		m_list.InsertItem(i,(LPCTSTR)strFrom);
-		m_list.SetItemText(i, 1, (LPCTSTR)strMsg);
-		i++;
-	}
 	return TRUE;
 }
 

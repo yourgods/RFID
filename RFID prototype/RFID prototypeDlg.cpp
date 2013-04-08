@@ -15,6 +15,7 @@
 #include "message.h"
 #include "SmsTrafic.h"
 #include <aygshell.h>
+#include "Receive.h"
 
 #pragma comment(lib,"sqlite3.lib")
 #pragma comment(lib,"aygshell.lib")
@@ -23,8 +24,19 @@
 #define new DEBUG_NEW
 #endif
 
+struct POINTARRAY{
+	CRFIDprototypeDlg *pWnd;
+	CReceive *pDlg;
+};
+
+//RFID read thread
 HANDLE hReadThread = INVALID_HANDLE_VALUE;
 DWORD dwTStat;
+//SMS receive thread
+HANDLE hRecvThread = INVALID_HANDLE_VALUE;
+DWORD dwRStat;
+DWORD RECV_Thread(PVOID pArg);
+
 CIniFile iniFile;
 int noStation = 0;
 
@@ -80,7 +92,7 @@ BOOL CRFIDprototypeDlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// 设置小图标
 
 	//设置主界面为全屏并隐藏任务栏
-#ifndef DEBUG_YFH
+#ifdef DEBUG_YFH
 	HWND hTask = ::FindWindow(TEXT("HHTaskBar"), NULL);
 	if (hTask)
 	{
@@ -242,17 +254,20 @@ void CRFIDprototypeDlg::OnBnClickedButton5()
 	if(NumUp!=NumDown){
 	//	PlaySound(L"\\ResidentFlash\\Sound\\Warning.wav",NULL,SND_SYNC|SND_NODEFAULT);
 		::MessageBox(NULL, _T("\\ResidentFlash\\Sound\\Warning.wav"), _T("上下车人数不等!"), MB_OK);
+	}else{
+		stPerson.strDownMessage="";
+		stPerson.strDownTime="";
+		stPerson.strName="";
+		stPerson.strPhoneNum="";
+		stPerson.strUpMessage="";
+		stPerson.strUpTime="";
 	}
-	stPerson.strDownMessage="";
-	stPerson.strDownTime="";
-	stPerson.strName="";
-	stPerson.strPhoneNum="";
-	stPerson.strUpMessage="";
-	stPerson.strUpTime="";
 	strArray.RemoveAll();
 
 	m_ListPassenger.DeleteAllItems();
 	SetDlgItemText(IDC_STATIC_PASSANGERNUM,L"0");
+	if(hReadThread != INVALID_HANDLE_VALUE)
+		TerminateThread(hReadThread, 0);
 	CloseDatabase();
 	KillTimer(TIMER);
 	if(gsm != NULL)
@@ -770,12 +785,17 @@ void CRFIDprototypeDlg::OnBnClickedButton2()
 void CRFIDprototypeDlg::OnBnClickedButton4()
 {
 	// TODO: 在此添加控件通知处理程序代码
-#ifdef USE_TRAFFIC
+	struct POINTARRAY temp;
 	CReceive dlg(this);
-#else
-	CReceive dlg;
-#endif
+	temp.pWnd = this;
+	temp.pDlg = &dlg;
+	if (!GetExitCodeThread(hRecvThread, &dwRStat) ||(dwRStat != STILL_ACTIVE)) 
+	{
+		hRecvThread = CreateThread (NULL, 0,RECV_Thread, &temp,0, &dwRStat);
+	}
 	dlg.DoModal();
+	TerminateThread(hRecvThread, 0);
+	hRecvThread = INVALID_HANDLE_VALUE;
 }
 
 void CRFIDprototypeDlg::OnBnClickedButton6()
@@ -923,5 +943,24 @@ BOOL CRFIDprototypeDlg::BrowseAndCopy(const CString szExistingDir, const CString
 		//源文件夹为空,返回
 		return FALSE;
 	 } 
+	return TRUE;
+}
+
+DWORD RECV_Thread(PVOID pArg){
+	struct POINTARRAY *p = (struct POINTARRAY *)pArg;
+	CRFIDprototypeDlg *pWnd =  p->pWnd;
+	CReceive *pDlg = p->pDlg;
+	while(1){
+		SM_PARAM sm;
+		int i = 0;
+		while(pWnd->gsm->GetRecvMessage(&sm)){
+			CString strFrom(sm.TPA);
+			CString strUD(sm.TP_UD);
+			pDlg->m_list.InsertItem(i, (LPCTSTR)strFrom);
+			pDlg->m_list.SetItemText(i, 1, (LPCTSTR)strUD);
+			i++;
+		}
+		Sleep(1000);
+	}
 	return TRUE;
 }

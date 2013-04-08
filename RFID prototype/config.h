@@ -16,5 +16,7 @@
 #define SMSC _T("8613010305500")  //for anhui
 #define ELAPSE (60*1000) //s
 #define TIMER 1
+#define TIMER2 2
+#define ELAPSE2 (1*1000) //s
 
 #endif

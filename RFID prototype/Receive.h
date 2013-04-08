@@ -26,9 +26,5 @@ protected:
 	DECLARE_MESSAGE_MAP()
 public:
 	CListCtrl m_list;
-#ifdef USE_TRAFFIC
-	CSmsTraffic *gsm;
-#endif
 	afx_msg void OnBnClickedOk();
-	BOOL Show();
 };

@@ -119,6 +119,7 @@ DWORD RXINT_Thread(PVOID pArg)
 #else
 			CString strStudentID = _T("stud_01");
 #endif
+
 			//Check either up or down bus
 			if(!pWnd->CheckDataExist(strName,strPhone))//ËµÃ÷ÉÏ³µ
 			{
@@ -135,7 +136,7 @@ DWORD RXINT_Thread(PVOID pArg)
 				structTemp.strUpMessage = "·ñ";
 				structTemp.strDownMessage = "·ñ";
 				strArray.Add(structTemp);
-				
+
 				//ÅĞ¶ÏÊÇ·ñ³¬ÔØ
 				int itest = _ttoi(iniFile.m_strCount);
 				if(strArray.GetCount()>itest)
