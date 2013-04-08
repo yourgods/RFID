@@ -64,11 +64,11 @@ bool parseBusRun(char *msg, struct update *update)
 		update->WI[i].value = _T("");
 	}
 
-	update->setItemCount = Table[index].itemKeyCount + Table[index].itemOthersCount - 1;
+	update->setItemCount = Table[index].itemOthersCount;
 	for(int i = 0;i<update->setItemCount; i++){
 		int t = temp.Find(_T(","));
-		update->SI[i].name = Table[index].fieldValue[i+1].fieldName;
-		update->SI[i].valueType = Table[index].fieldValue[i+1].fieldType;
+		update->SI[i].name = Table[index].fieldValue[i+Table[index].itemKeyCount].fieldName;
+		update->SI[i].valueType = Table[index].fieldValue[i+Table[index].itemKeyCount].fieldType;
 		update->SI[i].value = temp.Left(t).Trim();
 		temp.Delete(0, t+1);
 	}

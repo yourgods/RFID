@@ -16,17 +16,12 @@
 
 extern CRFIDprototypeApp theApp;
 
-static CString m_strPort;
-static CString m_strRate;
-static CString m_strSmsc;
 static HANDLE hStr;
 static unsigned char rx_data[1024];
 static OVERLAPPED m_osRead, m_osWrite; // ÓÃÓÚÖØµþ¶Á/Ð´
 
-static BOOL initVar(){
-	m_strPort = theApp.m_strPort;
-	m_strRate = theApp.m_strRate;
-	m_strSmsc = theApp.m_strSmsc;
+static BOOL initVar()
+{
 	HANDLE hStr = theApp.hStr;
 	return TRUE;
 }
@@ -135,16 +130,14 @@ DWORD RXINT_Thread(PVOID pArg)
 				CTime Upt=CTime::GetCurrentTime();
 				CString strUpTime = Upt.Format(L"%Y-%m-%d %H:%M:%S");
 				structTemp.strUpTime = strUpTime;
+				structTemp.strDownStation = _T("");
+				structTemp.strDownTime = _T("");
 				structTemp.strUpMessage = "·ñ";
 				structTemp.strDownMessage = "·ñ";
 				strArray.Add(structTemp);
 				
 				//ÅÐ¶ÏÊÇ·ñ³¬ÔØ
 				int itest = _ttoi(iniFile.m_strCount);
-				CString strTestTemp;
-
-				strTestTemp.Format(L"%d",itest);
-
 				if(strArray.GetCount()>itest)
 				{
 					//PlaySound(L"\\ResidentFlash\\Sound\\Full.wav",NULL,SND_SYNC|SND_NODEFAULT);

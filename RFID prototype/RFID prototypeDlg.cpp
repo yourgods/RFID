@@ -26,11 +26,7 @@
 HANDLE hReadThread = INVALID_HANDLE_VALUE;
 DWORD dwTStat;
 CIniFile iniFile;
-#ifndef DEBUG_YFH
-int noStation = 2;
-#else
 int noStation = 0;
-#endif
 
 CArray<StructPerson,StructPerson> strArray;
 
@@ -148,7 +144,8 @@ BOOL CRFIDprototypeDlg::OnInitDialog()
 	GetDlgItem(IDC_BUTTON3)->EnableWindow(FALSE);
 
 	iniFile.WriteIniBusRunID();
-	m_strCurrentStation = iniFile.m_cStations.GetAt(0);
+	noStation = 0;
+	m_strCurrentStation = iniFile.m_cStations.GetAt(noStation);
 
 	//启动RFID模块，进行读卡操作
 	//启动接收线程。
@@ -179,74 +176,79 @@ void CRFIDprototypeDlg::OnSize(UINT /*nType*/, int /*cx*/, int /*cy*/)
 void CRFIDprototypeDlg::OnBnClickedButton5()
 {
 	// TODO: 在此添加控件通知处理程序代码
-//	CString strName,strContent,strendContent,strPhone,strPhoneEnd,strCenterNum,strUpTime,strDownTime;
-//	CString strTempStart;
-//	strTempStart = "86";
-//	int  NumUp,NumDown,CountTemp;
-//	CountTemp=0;
-//	CString strTemp2;	
-//	NumUp= strArray.GetCount();
-//	strTemp2.Format(_T("%d"),NumUp);
-//	strUpTime = m_ListPassenger.GetItemText(0,2);
-//
-//	strDownTime = m_ListPassenger.GetItemText(NumUp,2);
-//
-//	strPhoneEnd = strTempStart+ iniFile.m_strPhoneNum;
-//	
-//	StructPerson stPerson;
-//	for (int j=0;j<strArray.GetCount();j++)
-//	{
-//		stPerson = strArray.GetAt(j);
-//		if(stPerson.strDownMessage == "是")
-//		{
-//			CountTemp++;
-//		}
-//	}
-////	if(CountTemp==NumUp)	
-////	if(NumDown==CountTemp)
-////	{
-//		CString strTemp;
-//		NumDown = CountTemp;
-//		strTemp.Format(L"%s",NumDown);
-//		//itoa(NumDown,NumDown,10);
-//		strContent= iniFile.m_strCP;
-//		strContent+=_T(" ");
-//		strContent+=strUpTime;
-//		strContent+=_T(" ");
-//		strContent+=strTemp2;
-//		strContent+=_T(" ");
-//		strContent+=strDownTime;
-//		strContent+=_T(" ");
-//		strContent+=strTemp;
-//		SM_PARAM sm_param;
-//		USES_CONVERSION;
-//		CHAR* pch=W2A(strContent);
-//		strcpy(sm_param.TP_UD, pch);
-//
-//		pch=W2A(strPhoneEnd);
-//		strcpy(sm_param.TPA, pch);
-//
-//		strCenterNum = SMSC;
-//		pch=W2A(strCenterNum);
-//		strcpy(sm_param.SCA, pch);
-//
-//		sm_param.TP_PID = 0;
-//		sm_param.TP_DCS = GSM_UCS2;
-//
-//#ifdef USE_TRAFFIC
-//		gsm->PutSendMessage(&sm_param);
-//#else
-//		::gsmSendMessage(&sm_param);
-//#endif
-	//	}
-	//if(NumUp!=NumDown)
+	CString strContent,strPhoneEnd,strCenterNum,strUpTime,strDownTime;
+
+	CString strTempStart;
+	strTempStart = "86";
+	int  NumUp = 0,NumDown = 0;
+	strCenterNum = SMSC;
+
+	//上车人数
+	CString strTemp2;	
+	NumUp= strArray.GetCount();
+	strTemp2.Format(_T("%d"),NumUp);
+
+	//上下车时间
+	strUpTime = m_ListPassenger.GetItemText(0,2);
+	strDownTime = m_ListPassenger.GetItemText(NumUp - 1,4);
+
+	//服务器号码
+	strPhoneEnd = strTempStart + iniFile.m_strPhoneNum;
+	
+	//下车人数
+	StructPerson stPerson;
+	for (int j=0;j<strArray.GetCount();j++)
+	{
+		stPerson = strArray.GetAt(j);
+		if(stPerson.strDownMessage == "是")
+		{
+			NumDown++;
+		}
+	}
+
+	CString strTemp;
+	strTemp.Format(_T("%d"),NumDown);
+	strContent= iniFile.m_strCP;
+	strContent+=_T(",");
+	strContent+=strUpTime;
+	strContent+=_T(",");
+	strContent+=strTemp2;
+	strContent+=_T(",");
+	strContent+=strDownTime;
+	strContent+=_T(",");
+	strContent+=strTemp;
+	strContent+=_T(",");
+	SM_PARAM sm_param;
+	USES_CONVERSION;
+	CHAR* pch=W2A(strContent);
+	strcpy(sm_param.TP_UD, pch);
+
+	pch=W2A(strPhoneEnd);
+	strcpy(sm_param.TPA, pch);
+
+	strCenterNum = SMSC;
+	pch=W2A(strCenterNum);
+	strcpy(sm_param.SCA, pch);
+
+	sm_param.TP_PID = 0;
+	sm_param.TP_DCS = GSM_UCS2;
+
+#ifdef USE_TRAFFIC
+	gsm->PutSendMessage(&sm_param);
+#else
+	::gsmSendMessage(&sm_param);
+#endif
+
+	if(NumUp!=NumDown){
 	//	PlaySound(L"\\ResidentFlash\\Sound\\Warning.wav",NULL,SND_SYNC|SND_NODEFAULT);
-	//stPerson.strDownMessage="";
-	//stPerson.strDownTime="";
-	//stPerson.strName="";
-	//stPerson.strPhoneNum="";
-	//stPerson.strUpMessage="";
-	//stPerson.strUpTime="";
+		::MessageBox(NULL, _T("\\ResidentFlash\\Sound\\Warning.wav"), _T("上下车人数不等!"), MB_OK);
+	}
+	stPerson.strDownMessage="";
+	stPerson.strDownTime="";
+	stPerson.strName="";
+	stPerson.strPhoneNum="";
+	stPerson.strUpMessage="";
+	stPerson.strUpTime="";
 	strArray.RemoveAll();
 
 	m_ListPassenger.DeleteAllItems();
@@ -404,46 +406,33 @@ void CRFIDprototypeDlg::OnBnClickedButton1()
 	//PlaySound(L"\\ResidentFlash\\Sound\\close.wav",NULL,SND_SYNC|SND_NODEFAULT);
 	//////////////////////////////////////////////////////////////////////////
 
-	//把车辆状态信息存入数据库中
+	//把发车次信息存入数据库中
 	struct bus_depart bus_depart;
-	memset(&bus_depart, 0x00,sizeof(bus_depart));
-
-	CString temp = iniFile.m_strBusRunID;
-	char *tmp = UnicodeToAnsi(temp.GetBuffer(temp.GetLength()));
-	memcpy(bus_depart.bus_run_ID, tmp, strlen(tmp));
-	delete[] tmp;
-
-	temp = iniFile.m_strBusID;
-	tmp = UnicodeToAnsi(temp.GetBuffer(temp.GetLength()));
-	memcpy(bus_depart.bus_ID, tmp, strlen(tmp));
-	delete[] tmp;
-
-	temp = m_strDriverID;
-	tmp = UnicodeToAnsi(temp.GetBuffer(temp.GetLength()));
-	memcpy(bus_depart.driver_ID, tmp, strlen(tmp));
-	delete[] tmp;
-
-	temp = m_strTeacherID;
-	tmp = UnicodeToAnsi(temp.GetBuffer(temp.GetLength()));
-	memcpy(bus_depart.teacher_ID, tmp, strlen(tmp));
-	delete[] tmp;
-
-	temp = iniFile.m_strRoadID;
-	tmp = UnicodeToAnsi(temp.GetBuffer(temp.GetLength()));
-	memcpy(bus_depart.road_ID, tmp, strlen(tmp));
-	delete[] tmp;
-
-	temp = iniFile.m_strCount;
-	tmp = UnicodeToAnsi(temp.GetBuffer(temp.GetLength()));
-	memcpy(bus_depart.student_number, tmp, strlen(tmp));
-	delete[] tmp;
-
-	tmp = NULL;
+	bus_depart.bus_run_ID = iniFile.m_strBusRunID;
+	bus_depart.bus_ID = iniFile.m_strBusID;
+	bus_depart.driver_ID = m_strDriverID;
+	bus_depart.teacher_ID = m_strTeacherID;
+	bus_depart.road_ID = iniFile.m_strRoadID;
+	bus_depart.student_number = iniFile.m_strCount;
+	bus_depart.remark = _T("");
 	InsertBusDepart(bus_depart);
 
-	//send data to service center
+	//把发车次信息发送到服务器
 	CString strContent, strPhoneEnd, strCenterNum;
-	strContent = _T("1,") + iniFile.m_strBusRunID + _T(",") + iniFile.m_strBusID + _T(",") + m_strDriverID + _T(",") + m_strTeacherID + _T(",") + iniFile.m_strRoadID + _T(",") + iniFile.m_strCount + _T(",");
+	strContent = _T("1,");
+	strContent += bus_depart.bus_run_ID;
+	strContent += _T(",");
+	strContent += bus_depart.bus_ID;
+	strContent += _T(",");
+	strContent += bus_depart.driver_ID;
+	strContent += _T(",");
+	strContent += bus_depart.teacher_ID;
+	strContent += _T(",");
+	strContent += bus_depart.road_ID;
+	strContent += _T(",");
+	strContent += bus_depart.student_number;
+	strContent += _T(",");
+
 	SM_PARAM sm_param;
 	USES_CONVERSION;
 	CHAR* pch=W2A(strContent);
@@ -475,56 +464,75 @@ void CRFIDprototypeDlg::OnBnClickedButton1()
 	GetDlgItem(IDC_BUTTON1)->EnableWindow(FALSE);
 	GetDlgItem(IDC_BUTTON2)->EnableWindow(TRUE);
 	GetDlgItem(IDC_BUTTON3)->EnableWindow(TRUE);
+
+	OnBnClickedButton3();
+	OnBnClickedButton2();
 	
-	StructPerson strtt;
-	CString strName,strPhoneNum,strUpMessageSend,strUpBusTime,strDownBusTime,strBusCode,strDownMessageSend;
-	for (int j=0;j<strArray.GetCount();j++)
-	{
-		strtt = strArray.GetAt(j);
-		InsertSchoolBus(strtt, iniFile.m_strCP);
+	//StructPerson strtt;
+	//CString strName,strPhoneNum,strUpMessageSend,strUpBusTime,strDownBusTime,strBusCode,strDownMessageSend;
+	//for (int j=0;j<strArray.GetCount();j++)
+	//{
+	//	strtt = strArray.GetAt(j);
 
-		//add into database
-		struct bus_stu bus_stu;
-		memset(&bus_stu, 0x00, sizeof(bus_stu));
-		
-		CString temp = iniFile.m_strBusRunID;
-		char *tmp = UnicodeToAnsi(temp.GetBuffer(temp.GetLength()));
-		memcpy(bus_stu.bus_run_ID, tmp, strlen(tmp));
-		delete[] tmp;
+	//	InsertSchoolBus(strtt, iniFile.m_strCP);
 
-		temp = strtt.strID;
-		tmp = UnicodeToAnsi(temp.GetBuffer(temp.GetLength()));
-		memcpy(bus_stu.student_ID, tmp, strlen(tmp));
-		delete[] tmp;
+	//	//把校车学生信息存储到数据库中
+	//	struct bus_stu bus_stu;
+	//	bus_stu.bus_run_ID = iniFile.m_strBusRunID;
+	//	bus_stu.student_ID = strtt.strID;
+	//	bus_stu.up_station_ID = strtt.strUpStation;
+	//	bus_stu.up_time = strtt.strUpTime;
+	//	bus_stu.down_station_ID = strtt.strDownStation;
+	//	bus_stu.down_time = strtt.strDownTime;
+	//	bus_stu.remark = _T("");
+	//	InsertBusStu(bus_stu);
 
-		tmp = NULL;
-		InsertBusStu(bus_stu);
+	//	if(strtt.strDownMessage.Compare(_T("是")) == 0 && strtt.strUpMessage.Compare(_T("是")) == 0)
+	//		continue;
 
-		//send message to service center
-		strContent = "";
-		strContent = _T("3,") + iniFile.m_strBusRunID + _T(",") + strtt.strID + _T(",") + _T(",") + _T(",") + _T(",") + _T(",");
-		SM_PARAM sm_param;
-		USES_CONVERSION;
-		CHAR* pch=W2A(strContent);
-		strcpy(sm_param.TP_UD, pch);
+	//	if((!strtt.strDownTime.IsEmpty())&&(strtt.strDownMessage.Compare(_T("否")) == 0))
+	//		strtt.strDownMessage = _T("是");
+	//	if((!strtt.strUpTime.IsEmpty())&&(strtt.strUpMessage.Compare(_T("否")) == 0))
+	//		strtt.strUpMessage = _T("是");	
 
-		strPhoneEnd = _T("86") + iniFile.m_strPhoneNum;
-		pch=W2A(strPhoneEnd);
-		strcpy(sm_param.TPA, pch);
+	//	strArray.SetAt(j, strtt);
+	//	//发送校车学生信息到服务器中
+	//	strContent = _T("3,");
+	//	strContent += bus_stu.bus_run_ID;
+	//	strContent += _T(",");
+	//	strContent += bus_stu.student_ID;
+	//	strContent += _T(",");
+	//	strContent += bus_stu.up_station_ID;
+	//	strContent += _T(",");
+	//	strContent += bus_stu.up_time;
+	//	strContent += _T(",");
+	//	strContent += bus_stu.down_station_ID;
+	//	strContent += _T(",");
+	//	strContent += bus_stu.down_time;
+	//	strContent += _T(",");
+	//	strContent += bus_stu.remark;
+	//	SM_PARAM sm_param;
+	//	USES_CONVERSION;
+	//	CHAR* pch=W2A(strContent);
+	//	strcpy(sm_param.TP_UD, pch);
 
-		strCenterNum = m_strSmsc;
-		pch=W2A(strCenterNum);
-		strcpy(sm_param.SCA, pch);
+	//	strPhoneEnd = _T("86") + iniFile.m_strPhoneNum;
+	//	pch=W2A(strPhoneEnd);
+	//	strcpy(sm_param.TPA, pch);
 
-		sm_param.TP_PID = 0;
-		sm_param.TP_DCS = GSM_8BIT;
+	//	strCenterNum = m_strSmsc;
+	//	pch=W2A(strCenterNum);
+	//	strcpy(sm_param.SCA, pch);
 
-	#ifdef USE_TRAFFIC
-		gsm->PutSendMessage(&sm_param);
-	#else
-		::gsmSendMessage(&sm_param);
-	#endif
-	}
+	//	sm_param.TP_PID = 0;
+	//	sm_param.TP_DCS = GSM_8BIT;
+
+	//#ifdef USE_TRAFFIC
+	//	gsm->PutSendMessage(&sm_param);
+	//#else
+	//	::gsmSendMessage(&sm_param);
+	//#endif
+	//}
 
 	SetTimer(TIMER, ELAPSE, 0);
 }
@@ -540,6 +548,7 @@ void CRFIDprototypeDlg::OnBnClickedButton3()
 	strendContent = "您的小孩已上车，车牌号为：";
 	strendContent += iniFile.m_strCP;
 	CString strSendFlag;
+
 	//ergodic each student
 	for (int n=0;n<m_ListPassenger.GetItemCount();n++)
 	{
@@ -587,37 +596,32 @@ void CRFIDprototypeDlg::OnBnClickedButton3()
 					strArray.SetAt(j,stPerson);
 					UpdateSchoolBusUp(stPerson);
 
-					//add into database
+					//将校车学生信息存储在本地数据库中
 					struct bus_stu bus_stu;
-					memset(&bus_stu, 0x00, sizeof(bus_stu));
-					
-					CString temp = iniFile.m_strBusRunID;
-					char *tmp = UnicodeToAnsi(temp.GetBuffer(temp.GetLength()));
-					memcpy(bus_stu.bus_run_ID, tmp, strlen(tmp));
-					delete[] tmp;
-
-					temp = stPerson.strID;
-					tmp = UnicodeToAnsi(temp.GetBuffer(temp.GetLength()));
-					memcpy(bus_stu.student_ID, tmp, strlen(tmp));
-					delete[] tmp;
-
-					temp = stPerson.strUpStation;
-					tmp = UnicodeToAnsi(temp.GetBuffer(temp.GetLength()));
-					memcpy(bus_stu.up_station_ID, tmp, strlen(tmp));
-					delete[] tmp;
-
-					//up time
-					temp = stPerson.strUpTime;
-					tmp = UnicodeToAnsi(temp.GetBuffer(temp.GetLength()));
-					memcpy(bus_stu.up_time, tmp, strlen(tmp));
-					delete[] tmp;
-
-					tmp = NULL;
+					bus_stu.bus_run_ID = iniFile.m_strBusRunID;
+					bus_stu.student_ID = stPerson.strID;
+					bus_stu.up_station_ID = stPerson.strUpStation;
+					bus_stu.up_time = stPerson.strUpTime;
+					bus_stu.down_station_ID = stPerson.strDownStation;
+					bus_stu.down_time = stPerson.strDownTime;
+					bus_stu.remark = _T("");
 					InsertBusStu(bus_stu);
 
-					//send message to service center
-					strContent = "";
-					strContent = _T("3,") + iniFile.m_strBusRunID + _T(",") + stPerson.strID + _T(",") + stPerson.strUpStation + _T(",") + stPerson.strUpTime + _T(",") + _T(",") + _T(",");
+					//发送校车学生信息到服务器中
+					strContent = _T("3,");
+					strContent += bus_stu.bus_run_ID;
+					strContent += _T(",");
+					strContent += bus_stu.student_ID;
+					strContent += _T(",");
+					strContent += bus_stu.up_station_ID;
+					strContent += _T(",");
+					strContent += bus_stu.up_time;
+					strContent += _T(",");
+					//strContent += bus_stu.down_station_ID;
+					strContent += _T(",");
+					//strContent += bus_stu.down_time;
+					strContent += _T(",");
+					strContent += bus_stu.remark;
 					SM_PARAM sm_param;
 					USES_CONVERSION;
 					CHAR* pch=W2A(strContent);
@@ -703,52 +707,36 @@ void CRFIDprototypeDlg::OnBnClickedButton2()
 				{
 					stPerson.strDownMessage = "是";
 					strArray.SetAt(j,stPerson);
-					CTime Downt=CTime::GetCurrentTime();
-					CString strDownTime = Downt.Format(L"%Y-%m-%d %H:%M:%S");
-					UpdateSchoolBusDown(stPerson, strDownTime);
+					//CTime Downt=CTime::GetCurrentTime();
+					//CString strDownTime = Downt.Format(L"%Y-%m-%d %H:%M:%S");
+					UpdateSchoolBusDown(stPerson, stPerson.strDownTime);
 
-					//update student down station & time
-					//下面更新数据库表中上车短信发送标示
+					//更新数据库中学生上下车的时间站点信息
 					struct bus_stu bus_stu;
-					struct bus_stu bus_stu_old;
-					memset(&bus_stu, 0x00, sizeof(bus_stu));
-					memset(&bus_stu_old, 0x00, sizeof(bus_stu_old));
-
-					CString temp = iniFile.m_strBusRunID;
-					char *tmp = UnicodeToAnsi(temp.GetBuffer(temp.GetLength()));
-					memcpy(bus_stu.bus_run_ID, tmp, strlen(tmp));
-					
-					temp = stPerson.strID;
-					char *tmp1 = UnicodeToAnsi(temp.GetBuffer(temp.GetLength()));
-					QueryBusStu(tmp, tmp1, &bus_stu_old);
-					delete[] tmp;
-					delete[] tmp1;
-					tmp1 = NULL;
-
-					temp = stPerson.strID;
-					tmp = UnicodeToAnsi(temp.GetBuffer(temp.GetLength()));
-					memcpy(bus_stu.student_ID, tmp, strlen(tmp));
-					delete[] tmp;
-
-					memcpy(bus_stu.up_station_ID, bus_stu_old.up_station_ID, strlen(bus_stu_old.up_station_ID));
-					memcpy(bus_stu.up_time, bus_stu_old.up_time, strlen(bus_stu_old.up_time));
-
-					temp = stPerson.strDownStation;
-					tmp = UnicodeToAnsi(temp.GetBuffer(temp.GetLength()));
-					memcpy(bus_stu.down_station_ID, tmp, strlen(tmp));
-					delete[] tmp;
-
-					temp = stPerson.strDownTime;
-					tmp = UnicodeToAnsi(temp.GetBuffer(temp.GetLength()));
-					memcpy(bus_stu.down_time, tmp, strlen(tmp));
-					delete[] tmp;
-
-					tmp = NULL;
+					bus_stu.bus_run_ID = iniFile.m_strBusRunID;
+					bus_stu.student_ID = stPerson.strID;
+					bus_stu.up_station_ID = stPerson.strUpStation;
+					bus_stu.up_time = stPerson.strUpTime;
+					bus_stu.down_station_ID = stPerson.strDownStation;
+					bus_stu.down_time = stPerson.strDownTime;
+					bus_stu.remark = _T("");
 					InsertBusStu(bus_stu);
 
-					//send message to service center
-					strContent = "";
-					strContent = _T("3,") + iniFile.m_strBusRunID + _T(",") + stPerson.strID + _T(",") + stPerson.strUpStation + _T(",") + stPerson.strUpTime + _T(",") + stPerson.strDownStation + _T(",") + stPerson.strDownTime + _T(",");
+					//发送校车学生信息到服务器中
+					strContent = _T("3,");
+					strContent += bus_stu.bus_run_ID;
+					strContent += _T(",");
+					strContent += bus_stu.student_ID;
+					strContent += _T(",");
+					strContent += bus_stu.up_station_ID;
+					strContent += _T(",");
+					strContent += bus_stu.up_time;
+					strContent += _T(",");
+					strContent += bus_stu.down_station_ID;
+					strContent += _T(",");
+					strContent += bus_stu.down_time;
+					strContent += _T(",");
+					strContent += bus_stu.remark;	
 					SM_PARAM sm_param;
 					USES_CONVERSION;
 					CHAR* pch=W2A(strContent);
@@ -826,7 +814,32 @@ BOOL CRFIDprototypeDlg::SendStatusInfo(void)
 	count.Format(_T("%d"), strArray.GetCount());
 	CTime now=CTime::GetCurrentTime();
 	CString time = now.Format(L"%Y-%m-%d %H:%M:%S");
-	strContent = _T("2,") + iniFile.m_strBusRunID + _T(",") + count + _T(",") + _T("11.208") + _T(",") + _T("424.0230") + _T(",") + time + _T(",") + _T("89") + _T(",") + m_strCurrentStation + _T(",");
+	struct bus_run bus_run;
+	bus_run.bus_run_ID = iniFile.m_strBusRunID;
+	bus_run.curr_stu_num = count;
+	bus_run.longitude = _T("11.208");
+	bus_run.latitude = _T("234.23");
+	bus_run.curr_time = time;
+	bus_run.curr_speed = _T("89");
+	bus_run.curr_station_ID = m_strCurrentStation;
+	bus_run.remark = _T("");
+	
+	strContent = _T("2,");
+	strContent += bus_run.bus_run_ID;
+	strContent += _T(",");
+	strContent += bus_run.curr_stu_num;
+	strContent += _T(",");
+	strContent += bus_run.longitude;
+	strContent += _T(",");
+	strContent += bus_run.latitude;
+	strContent += _T(",");
+	strContent += bus_run.curr_time;
+	strContent += _T(",");
+	strContent += bus_run.curr_speed;
+	strContent += _T(",");
+	strContent += bus_run.curr_station_ID;
+	strContent += _T(",");
+	
 	SM_PARAM sm_param;
 	USES_CONVERSION;
 	CHAR* pch=W2A(strContent);
