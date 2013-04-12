@@ -16,9 +16,11 @@
 #include "SmsTrafic.h"
 #include <aygshell.h>
 #include "Receive.h"
+#include "WqLib_2416.h"
 
 #pragma comment(lib,"sqlite3.lib")
 #pragma comment(lib,"aygshell.lib")
+#pragma comment(lib, "WqLib_2416.lib")
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -273,6 +275,8 @@ void CRFIDprototypeDlg::OnBnClickedButton5()
 	if(gsm != NULL)
 		delete gsm;
 	noStation = 0;
+
+	RE_BOOT();
 	OnOK();
 }
 

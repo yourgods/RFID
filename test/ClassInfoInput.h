@@ -27,8 +27,20 @@ public:
 	CString class_ID;
 	CString name;
 	CString remark;
+	int school_index;
+	CArray<rowItem, rowItem> m_aSchool;
+	int class_index;
+	CArray<rowItem, rowItem> m_aClass;
 	afx_msg void OnBnClickedCancel();
 	CString school;
 protected:
 	virtual void PreInitDialog();
+public:
+	afx_msg void OnCbnSelchangeName();
+	CString m_strSchoolNo;
+	CString m_strSchoolManager;
+	CString m_strSchoolMobile;
+	CString m_strSchoolFix;
+	CString m_strSchoolRemark;
+	afx_msg void OnCbnSelchangeSchool();
 };

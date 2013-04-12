@@ -36,7 +36,7 @@
 				DeploymentDevice="1217C95D-7518-44D0-A9A7-EDC4D56DEFC1d6518ffc-710f-11d3-99f2-00105a0df099"
 			/>
 			<DebuggerTool
-				RemoteExecutable="ResidentFlash\RFID prototype\RFID prototype.exe"
+				RemoteExecutable="ResidentFlash\RFID\RFID.exe"
 				Arguments=""
 			/>
 		</Configuration>

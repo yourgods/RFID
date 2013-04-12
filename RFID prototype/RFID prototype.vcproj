@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9.00"
-	Name="RFID prototype"
+	Name="RFID"
 	ProjectGUID="{2B1D4D2B-667E-40F3-BB38-ECBC81DEDE47}"
 	RootNamespace="RFID prototype"
 	Keyword="MFCProj"
@@ -96,7 +96,7 @@
 			/>
 			<DeploymentTool
 				ForceDirty="-1"
-				RemoteDirectory="ResidentFlash\RFID prototype"
+				RemoteDirectory="ResidentFlash\RFID"
 				RegisterOutput="0"
 				AdditionalFiles=""
 			/>

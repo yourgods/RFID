@@ -30,8 +30,12 @@ public:
 	CString mobi_phone;
 	CString fix_phone;
 	CString remark;
+	CArray<rowItem, rowItem> m_aSchool;
+	int school_index;
 	afx_msg void OnBnClickedCancel2();
 protected:
 	virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
 	virtual void PreInitDialog();
+public:
+	afx_msg void OnCbnSelchangeName();
 };

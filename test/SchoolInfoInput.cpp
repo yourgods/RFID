@@ -57,8 +57,9 @@ CSchoolInfoInput::CSchoolInfoInput(CWnd* pParent /*=NULL*/)
 	, mobi_phone(_T(""))
 	, fix_phone(_T(""))
 	, remark(_T(""))
+	, school_index(0)
 {
-
+	m_aSchool.RemoveAll();
 }
 
 CSchoolInfoInput::~CSchoolInfoInput()
@@ -80,6 +81,7 @@ void CSchoolInfoInput::DoDataExchange(CDataExchange* pDX)
 BEGIN_MESSAGE_MAP(CSchoolInfoInput, CDialog)
 	ON_BN_CLICKED(IDOK2, &CSchoolInfoInput::OnBnClickedOk2)
 	ON_BN_CLICKED(IDCANCEL2, &CSchoolInfoInput::OnBnClickedCancel2)
+	ON_CBN_SELCHANGE(IDC_NAME, &CSchoolInfoInput::OnCbnSelchangeName)
 END_MESSAGE_MAP()
 
 
@@ -153,5 +155,57 @@ void CSchoolInfoInput::PreInitDialog()
 	SetDlgItemText(IDC_MOBI, mobi_phone);
 	SetDlgItemText(IDC_HOME, fix_phone);
 	SetDlgItemText(IDC_REMARK, remark); 
+	for(int i = 0; i<(sizeof(Table)/sizeof(Table[0])); i++){
+		if(Table[i].name.Compare(_T("school"))==0)
+			school_index = i;
+	}
+
+	struct query query;
+	query.from = _T("school");
+	query.otherTerm = _T("");
+	query.selectedItemCount = Table[school_index].itemKeyCount + Table[school_index].itemOthersCount;
+	for(int i = 0; i<query.selectedItemCount; i++){
+		query.SI[i].name = Table[school_index].fieldValue[i].fieldName;
+		query.SI[i].chineseName = Table[school_index].fieldValue[i].chineseName;
+	}
+	query.whereItemCount = 0;
+	Query(&query, m_aSchool);
+
+	CComboBox *pBox = (CComboBox *)GetDlgItem(IDC_NAME);
+	for(int i = 0; i<m_aSchool.GetCount(); i++){
+		pBox->AddString(m_aSchool.GetAt(i).CI[1].value);
+	}
+
 	CDialog::PreInitDialog();
+}
+
+void CSchoolInfoInput::OnCbnSelchangeName()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	CComboBox *pBox = (CComboBox *)GetDlgItem(IDC_NAME);
+	int nSelect = pBox->GetCurSel();
+	CString strCurSel;
+	pBox->GetLBText(nSelect, strCurSel);
+	int temp_index = 0;
+	for(temp_index = 0; temp_index<m_aSchool.GetCount(); temp_index++){
+		if(m_aSchool.GetAt(temp_index).CI[1].value.Compare(strCurSel) == 0)
+			break;
+	}
+
+	if(temp_index >= m_aSchool.GetCount())
+		return;
+
+	school_ID = m_aSchool.GetAt(temp_index).CI[0].value;
+	name = m_aSchool.GetAt(temp_index).CI[1].value;
+	manager = m_aSchool.GetAt(temp_index).CI[2].value;
+	mobi_phone = m_aSchool.GetAt(temp_index).CI[3].value;
+	fix_phone = m_aSchool.GetAt(temp_index).CI[4].value;
+	remark = m_aSchool.GetAt(temp_index).CI[5].value;
+
+	SetDlgItemText(IDC_NO,school_ID);
+	SetDlgItemText(IDC_NAME, name);
+	SetDlgItemText(IDC_OFFICER, manager);
+	SetDlgItemText(IDC_MOBI, mobi_phone);
+	SetDlgItemText(IDC_HOME, fix_phone);
+	SetDlgItemText(IDC_REMARK, remark); 
 }
