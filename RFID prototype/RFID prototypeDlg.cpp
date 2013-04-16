@@ -94,16 +94,17 @@ BOOL CRFIDprototypeDlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// 设置小图标
 
 	//设置主界面为全屏并隐藏任务栏
-//#ifdef DEBUG_YFH
-//	HWND hTask = ::FindWindow(TEXT("HHTaskBar"), NULL);
-//	if (hTask)
-//	{
-//	::ShowWindow(hTask, SW_HIDE);
-//	}
-//	DWORD dwState = SHFS_HIDETASKBAR | SHFS_HIDESTARTICON | SHFS_HIDESIPBUTTON;
-//	SHFullScreen(this->GetSafeHwnd(), dwState);
-//	::MoveWindow(this->GetSafeHwnd(), 0,0,GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN), TRUE); 
-//#endif
+#ifdef DEBUG_YFH
+	HWND hTask = ::FindWindow(TEXT("HHTaskBar"), NULL);
+	if (hTask)
+	{
+	::ShowWindow(hTask, SW_HIDE);
+	}
+	DWORD dwState = SHFS_HIDETASKBAR | SHFS_HIDESTARTICON | SHFS_HIDESIPBUTTON;
+	SHFullScreen(this->GetSafeHwnd(), dwState);
+	::MoveWindow(this->GetSafeHwnd(), 0,0,GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN), TRUE); 
+#endif
+
 	// TODO: 在此添加额外的初始化代码
 	// 登陆校车安全系统并获取随车教师和司机编码
 	CLogin loginDlg;
@@ -112,10 +113,12 @@ BOOL CRFIDprototypeDlg::OnInitDialog()
 #ifdef DEBUG_YFH
 		//::MessageBox(NULL, _T("登陆成功"), _T("登陆"), MB_OK);
 #endif
-		m_strTeacherID = loginDlg.m_strName;
-		m_strDriverID = DRIVER_ID;
+		m_strTeacherID = loginDlg.m_strTeacherID;
+		m_strDriverID = loginDlg.m_strDriverID;
 	}else{
 		::MessageBox(NULL, _T("登陆失败,退出系统!"), _T("登陆"), MB_OK);
+		m_strTeacherID = _T("");
+		m_strDriverID = _T("");
 		OnOK();
 	}
 
@@ -124,20 +127,22 @@ BOOL CRFIDprototypeDlg::OnInitDialog()
 	if(iniFile.ReadIni())
 	{
 		////显示读出的ini文件
-		//CString strIni;
-		//strIni += _T("车牌号:");
-		//strIni += iniFile.m_strCP;
-		//strIni += _T("\r\n最大车载人数:");
-		//strIni += iniFile.m_strCount;
-		//strIni += _T("\r\n学校号码:");
-		//strIni += iniFile.m_strPhoneNum;
-		//strIni += _T("\r\n校车编号:");
-		//strIni += iniFile.m_strBusID;
-		//strIni += _T("\r\n路径编号:");
-		//strIni += iniFile.m_strRoadID;
-		//strIni += _T("\r\n发车次编号:");
-		//strIni += iniFile.m_strBusRunID;
-		//::MessageBox(NULL, strIni, _T("配置"), MB_OK);
+#ifdef DEBUG_YFH
+		CString strIni;
+		strIni += _T("车牌号:");
+		strIni += iniFile.m_strCP;
+		strIni += _T("\r\n最大车载人数:");
+		strIni += iniFile.m_strCount;
+		strIni += _T("\r\n学校号码:");
+		strIni += iniFile.m_strPhoneNum;
+		strIni += _T("\r\n校车编号:");
+		strIni += iniFile.m_strBusID;
+		strIni += _T("\r\n路径编号:");
+		strIni += iniFile.m_strRoadID;
+		strIni += _T("\r\n发车次编号:");
+		strIni += iniFile.m_strBusRunID;
+		::MessageBox(NULL, strIni, _T("配置"), MB_OK);
+#endif
 	}else{
 		::MessageBox(NULL, _T("无法读出配置文件,将使用默认配置!"), _T("配置"), MB_OK);
 	}	
@@ -303,15 +308,12 @@ void CRFIDprototypeDlg::OnPaint()
 	CPaintDC dc(this); // device context for painting
 	// TODO: 在此处添加消息处理程序代码
 	// 不为绘图消息调用 CDialog::OnPaint()
+
 	//画站点线
 	CRect rect; 
 	GetClientRect(&rect); 
 	CDC dcMem; 
 	dcMem.CreateCompatibleDC(&dc); 
-	//BITMAP bitmap; 
-	//m_BackScreenBitmap.GetBitmap(&bitmap); 
-	//CBitmap *pbmpOld=dcMem.SelectObject(&m_BackScreenBitmap); 
-	//dc.StretchBlt(0,0,rect.Width(),rect.Height(),&dcMem,0,0, bitmap.bmWidth,bitmap.bmHeight,SRCCOPY); 
 
 	CPen *pen = (CPen *)dc.SelectStockObject(WHITE_PEN);
 	int start = 50;

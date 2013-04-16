@@ -29,7 +29,7 @@ CRFIDprototypeApp::CRFIDprototypeApp()
 	m_strPort=GSM_COM;
 	m_strRate=_T("9600");
 	m_strSmsc=SMSC;
-	hStr=INVALID_HANDLE_VALUE;
+	//hStr=INVALID_HANDLE_VALUE;
 }
 
 
@@ -81,7 +81,7 @@ BOOL CRFIDprototypeApp::CloseGSM()
 
 BOOL CRFIDprototypeApp::CloseRFID()
 {
-	CloseHandle(hStr);	
+	//CloseHandle(hStr);	
 	return TRUE;
 }
 
@@ -178,20 +178,21 @@ BOOL CRFIDprototypeApp::CheckGSM()
 
 BOOL CRFIDprototypeApp::CheckRFID()
 {
-	hStr = CreateFile(RFID_COM, GENERIC_READ | GENERIC_WRITE, 0, NULL,
-		OPEN_EXISTING, 0, 0);
-	if (INVALID_HANDLE_VALUE == hStr)
-	{
-		AfxMessageBox(L"无法打开RFID COM2:!");
-		return FALSE;
-	}
-	else
-	{
-		if(!GetCommState(hStr, &dcb))
-			return 0;
-		dcb.BaudRate = 19200; // 数据传输速率
-		SetCommState(hStr, &dcb);
-	}
+	//hStr = CreateFile(RFID_COM, GENERIC_READ | GENERIC_WRITE, 0, NULL,
+	//	OPEN_EXISTING, 0, 0);
+	//if (INVALID_HANDLE_VALUE == hStr)
+	//{
+	//	AfxMessageBox(L"无法打开RFID COM2:!");
+	//	return FALSE;
+	//}
+	//else
+	//{
+	//	if(!GetCommState(hStr, &dcb))
+	//		return 0;
+	//	dcb.BaudRate = 19200; // 数据传输速率
+	//	SetCommState(hStr, &dcb);
+	//	PurgeComm(hStr, PURGE_TXCLEAR|PURGE_RXCLEAR);
+	//}
 	return TRUE;
 }
 

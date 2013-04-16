@@ -24,7 +24,7 @@ public:
 	CString m_strPort;
 	CString m_strRate;
 	CString m_strSmsc;
-	HANDLE hStr;
+	//HANDLE hStr;
 	DCB dcb;
 
 private:

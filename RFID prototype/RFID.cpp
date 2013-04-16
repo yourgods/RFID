@@ -14,26 +14,32 @@
 
 #define RFID_TEST
 
-extern CRFIDprototypeApp theApp;
-
-static HANDLE hStr;
 static unsigned char rx_data[1024];
 static OVERLAPPED m_osRead, m_osWrite; // 用于重叠读/写
 
 void procFunction(CString strName, CString strStudentID, CString strPhone, CRFIDprototypeDlg *pWnd);
 
-static BOOL initVar()
-{
-	HANDLE hStr = theApp.hStr;
-	return TRUE;
-}
 
 //UART接收线程函数
 DWORD RXINT_Thread(PVOID pArg)
 {
-
-	initVar();
-	//unsigned char temp_data[1024];
+	HANDLE hStr = INVALID_HANDLE_VALUE;
+	DCB dcb;
+	hStr = CreateFile(RFID_COM, GENERIC_READ | GENERIC_WRITE, 0, NULL,
+		OPEN_EXISTING, 0, 0);
+	if (INVALID_HANDLE_VALUE == hStr)
+	{
+		AfxMessageBox(L"无法打开RFID COM2:!");
+		return FALSE;
+	}
+	else
+	{
+		if(!GetCommState(hStr, &dcb))
+			return 0;
+		dcb.BaudRate = 19200; // 数据传输速率
+		SetCommState(hStr, &dcb);
+		PurgeComm(hStr, PURGE_TXCLEAR|PURGE_RXCLEAR);
+	}
 	DWORD length;
 	CString	str1;
 	CRFIDprototypeDlg *pWnd = (CRFIDprototypeDlg *)pArg;
@@ -140,6 +146,7 @@ DWORD RXINT_Thread(PVOID pArg)
 		Sleep(3); //加延时
 #endif
 	}
+	CloseHandle(hStr);
 	return 0;
 }
 
