@@ -85,11 +85,6 @@ CClassInfoInput::CClassInfoInput(CWnd* pParent /*=NULL*/)
 	, school(_T(""))
 	, school_index(0)
 	, class_index(0)
-	, m_strSchoolNo(_T(""))
-	, m_strSchoolManager(_T(""))
-	, m_strSchoolMobile(_T(""))
-	, m_strSchoolFix(_T(""))
-	, m_strSchoolRemark(_T(""))
 {
 	m_aSchool.RemoveAll();
 	m_aClass.RemoveAll();
@@ -106,11 +101,6 @@ void CClassInfoInput::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_NAME, name);
 	DDX_Text(pDX, IDC_EDIT3, remark);
 	DDX_Text(pDX, IDC_SCHOOL, school);
-	DDX_Text(pDX, IDC_NO2, m_strSchoolNo);
-	DDX_Text(pDX, IDC_OFFICER2, m_strSchoolManager);
-	DDX_Text(pDX, IDC_MOBI2, m_strSchoolMobile);
-	DDX_Text(pDX, IDC_HOME2, m_strSchoolFix);
-	DDX_Text(pDX, IDC_REMARK2, m_strSchoolRemark);
 }
 
 
@@ -126,110 +116,167 @@ END_MESSAGE_MAP()
 void CClassInfoInput::OnBnClickedOk()
 {
 	// TODO: 在此添加控件通知处理程序代码
-	GetDlgItemText(IDC_NO, class_ID);
-	GetDlgItemText(IDC_NAME, name);
-	GetDlgItemText(IDC_EDIT3, remark);
-	GetDlgItemText(IDC_SCHOOL, school);
-	GetDlgItemText(IDC_NO2, m_strSchoolNo);
-	GetDlgItemText(IDC_OFFICER2, m_strSchoolManager);
-	GetDlgItemText(IDC_MOBI2, m_strSchoolMobile);
-	GetDlgItemText(IDC_HOME2, m_strSchoolFix);
-	GetDlgItemText(IDC_REMARK2, m_strSchoolRemark);
-
-	//更新学校信息数据
-	int index = school_index;
-
-	//查询出相应的学校信息
-	struct query query;
-	query.from  = Table[index].name;
-	query.selectedItemCount = 2;
-	query.SI[0].name = _T("school_ID");
-	int temp_index = 0;
-	for(temp_index = 0; temp_index<Table[index].itemKeyCount + Table[index].itemOthersCount; temp_index++){
-		if(Table[index].fieldValue[temp_index].fieldName.Compare(query.SI[0].name) == 0)
-			break;
-	}
-	query.SI[1].chineseName = Table[index].fieldValue[temp_index].chineseName;
-	query.SI[1].name = _T("class_number");
-	for(temp_index = 0; temp_index<Table[index].itemKeyCount + Table[index].itemOthersCount; temp_index++){
-		if(Table[index].fieldValue[temp_index].fieldName.Compare(query.SI[1].name) == 0)
-			break;
-	}
-	query.SI[1].chineseName = Table[index].fieldValue[temp_index].chineseName;
-	query.whereItemCount = 0;
-	query.otherTerm = _T("");
-	CArray<rowItem, rowItem> school_rest;
-	Query(&query, school_rest);
-	int count = school_rest.GetCount();
-	if(!count){
-		MessageBox(_T("没有对应的学校,请先输入学校信息"));
-		return;
-	}
-	
-	//插入班级信息数据
-	for(index = 0; index<(sizeof(Table)/sizeof(Table[0])); index++){
-		if(Table[index].chineseName.Compare(_T("班级信息")) == 0)
-			break;
-	}
-	struct update update;
-	update.from = _T("class");
-	update.whereItemCount = 1;
-	update.WI[0].name = _T("class_ID");
-	for(temp_index = 0; temp_index<Table[index].itemKeyCount + Table[index].itemOthersCount; temp_index++){
-		if(Table[index].fieldValue[temp_index].fieldName.Compare(update.WI[0].name) == 0)
-			break;
-	}
-	update.WI[0].valueType = Table[index].fieldValue[temp_index].fieldType;
-	update.WI[0].value = class_ID;
-	update.setItemCount = Table[index].itemKeyCount + Table[index].itemOthersCount;
-	for(int i = 0; i<update.setItemCount; i++){
-		update.SI[i].name = Table[index].fieldValue[i].fieldName;
-		update.SI[i].valueType = Table[index].fieldValue[i].fieldType;
-	}
-	update.SI[0].value = class_ID;
-	update.SI[1].value = name;
-	update.SI[2].value = remark;
-	if(Insert(&update) != -1){
-		//更新学校信息,班级数加1
-		struct update update;
-		update.from = _T("school");
-		//set class_number increment
-		update.setItemCount = 1;
-		update.SI[0].name = school_rest[0].CI[1].name;
-		update.SI[0].valueType = school_rest[0].CI[1].valueType;
-		CString t;
-		t.Format(_T("%d"), _ttoi(school_rest[0].CI[1].value) + 1);
-		update.SI[0].value = t;
-		//set where term use school_ID;
-		update.whereItemCount = 1;
-		update.WI[0].name = school_rest[0].CI[0].name;
-		update.WI[0].valueType = school_rest[0].CI[0].valueType;
-		update.WI[0].value = school_rest[0].CI[0].value;
-		InsertUniform(&update);
-
-		//更新学校-班级关系表
-		for(index = 0; index<(sizeof(Table)/sizeof(Table[0])); index++){
-			if(Table[index].chineseName.Compare(_T("学校班级关系")) == 0)
-				break;
-		}
-		update.from = _T("school_class");
-		update.setItemCount = Table[index].itemKeyCount + Table[index].itemOthersCount;
-		for(int i = 0; i<update.setItemCount; i++){
-			update.SI[i].name = Table[index].fieldValue[i].fieldName;
-			update.SI[i].valueType = Table[index].fieldValue[i].fieldType;
-		}
-		update.SI[0].value = class_ID;
-		update.SI[1].value = school;
-		update.SI[2].value = _T("");
-		update.whereItemCount = 1;
-		update.WI[0].name = update.SI[0].name;
-		update.WI[0].valueType = update.SI[0].valueType;
-		update.WI[0].value = update.SI[0].value;
-		InsertUniform(&update);
-	}else{
-		InsertUniform(&update);
-	}
-
+//	GetDlgItemText(IDC_NO, class_ID);
+//	GetDlgItemText(IDC_NAME, name);
+//	GetDlgItemText(IDC_EDIT3, remark);
+//	GetDlgItemText(IDC_SCHOOL, school);
+//
+//	//判断学校是否存在
+//	BOOL school_exist = FALSE;
+//	int index_school = 0;
+//	for(index_school = 0; index_school<m_aSchool.GetCount(); index_school++){
+//		if(m_aSchool.GetAt(index_school).CI[0].value.Compare(m_strSchoolNo) == 0)
+//			break;
+//	}
+//	if(index_school < m_aSchool.GetCount()){ //学校存在
+//		school_exist = TRUE;
+//	}
+//
+//
+//	//是否已存在班级
+//	int index_class = 0;
+//	for(index_class = 0; index_class<m_aClass.GetCount(); index_class++){
+//		if(m_aClass.GetAt(index_class).CI[0].value.Compare(class_ID) == 0)
+//			break;
+//	}
+//	if(index_class >= m_aClass.GetCount()){ //要插入的班级不存在
+//		if(school_exist){ //学校存在，则递增学校学校的班级数
+//			struct update update;
+//			update.from = _T("school");
+//			update.setItemCount = 1;
+//			update.SI[0].name = _T("class_number");
+//			int t;
+//			for(t = 0; t<Table[school_index].itemKeyCount + Table[school_index].itemOthersCount; t++){
+//				if(Table[school_index].fieldValue[t].fieldName.Compare(update.SI[0].name) == 0)
+//					break;
+//			}
+//			update.SI[0].valueType = Table[school_index].fieldValue[t].fieldType;
+//			CString t1;
+//			t1.Format(_T("%d"), _ttoi(m_aSchool.GetAt(index_school).CI[t].value) + 1);
+//			update.SI[0].value = t1;
+//			update.whereItemCount = 1;
+//			update.WI[0].name = _T("school_ID");
+//			for(t = 0; t<Table[school_index].itemKeyCount + Table[school_index].itemOthersCount; t++){
+//				if(Table[school_index].fieldValue[t].fieldName.Compare(update.WI[0].name) == 0)
+//					break;
+//			}
+//			update.WI[0].valueType = Table[school_index].fieldValue[t].fieldType;
+//			update.WI[0].value = m_strSchoolNo;
+//			InsertUniform(&update);
+//		}else{ //学校不存在，则创建学校
+//			struct update update;
+//			update.from = _T("school");
+//			update.setItemCount = Table[school_index].itemKeyCount + Table[school_index].itemOthersCount;
+//			for(int i = 0; i<update.setItemCount; i++){
+//				update.SI[i].name = Table[school_index].fieldValue[i].fieldName;
+//				update.SI[i].valueType = Table[school_index].fieldValue[i].fieldType;
+//			}
+//			update.SI[0].value = m_strSchoolNo;
+//			update.SI[1].value = school;
+//			update.SI[2].value = m_strSchoolManager;
+//			update.SI[3].value = m_strSchoolMobile;
+//			update.SI[4].value = m_strSchoolFix;
+//			update.SI[5].value = _T("0");
+//			update.SI[6].value = _T("1");
+//			update.SI[7].value = _T("0");
+//			update.SI[8].value = _T("0");
+//			update.SI[9].value = _T("0");
+//			update.SI[10].value = m_strSchoolRemark;
+//			InsertUniform(&update);
+//		}		
+//	}else{ //要插入的班级存在，且在数组中的位置为index_class
+//		//班级存在则先查询班级包含的学生和教师人数
+//		struct query query;
+//		query.from = _T("sch_tea_cla");
+//		query.otherTerm = _T("");
+//		query.selectedItemCount = 1;
+//		query.SI[0].name = _T("student_ID");
+//		query.SI[0].chineseName = _T("学生编号");
+//		query.whereItemCount = 1;
+//		query.WI[0].name = _T("class_ID");
+//		query.WI[0].valueType = MYSQL_TYPE_STRING;
+//		query.WI[0].value = class_ID;
+//		CArray<rowItem, rowItem> num_rest;
+//		Query(&query, num_rest);
+//		int stu_num = num_rest.GetCount();
+//
+//		query.selectedItemCount = 1;
+//		query.SI[0].name = _T("teacher_ID");
+//		query.SI[0].chineseName = _T("教师编号");
+//		num_rest.RemoveAll();
+//		Query(&query, num_rest);
+//		int teacher_num = num_rest.GetCount();
+//
+//		if(!school_exist){ //学校不存在,插入学校
+//			struct update update;
+//			update.from = _T("school");
+//			update.setItemCount = Table[school_index].itemKeyCount + Table[school_index].itemOthersCount;
+//			for(int i = 0; i<update.setItemCount; i++){
+//				update.SI[i].name = Table[school_index].fieldValue[i].fieldName;
+//				update.SI[i].valueType = Table[school_index].fieldValue[i].fieldType;
+//			}
+//			update.SI[0].value = m_strSchoolNo;
+//			update.SI[1].value = school;
+//			update.SI[2].value = m_strSchoolManager;
+//			update.SI[3].value = m_strSchoolMobile;
+//			update.SI[4].value = m_strSchoolFix;
+//			CString t;
+//			t.Format(_T("%d"), stu_num);
+//			update.SI[5].value = t;
+//			update.SI[6].value = _T("1");
+//			t.Format(_T("%d"), teacher_num);
+//			update.SI[7].value = t;
+//			update.SI[8].value = _T("0");
+//			update.SI[9].value = _T("0");
+//			update.SI[10].value = m_strSchoolRemark;
+//			InsertUniform(&update);
+//		}else{ //学校存在
+//			//看是否修改了所属学校
+//			struct query query;
+//			query.from = _T("school_class");
+//			query.otherTerm = _T("");
+//			query.selectedItemCount = 2;
+//			query.SI[0].name = _T("class_ID");
+//			query.SI[0].chineseName = _T("班级编号");
+//			query.SI[1].name = _T("school_ID");
+//			query.SI[1].chineseName = _T("学校编号");
+//			query.whereItemCount = 1;
+//			query.WI[0].name = _T("class_ID");
+//			query.WI[0].valueType = MYSQL_TYPE_STRING;
+//			query.WI[0].value = class_ID;
+//			CArray<rowItem, rowItem> relative_rest;
+//			Query(&query, relative_rest);
+//			if(relative_rest.GetCount() != 0){ //班级先前指定学校
+//				if(relative_rest.GetAt(0).CI[0].value.Compare(m_strSchoolNo) == 0)
+//					goto END;
+//				else{
+//					
+//				}
+//			}
+//			struct update update;
+//			update.from = _T("school");
+//			update.setItemCount = 3;
+//			update.SI[0].name = _T("student_number");
+//			update.SI[0].valueType = MYSQL_TYPE_LONG;
+//			update.SI[1].name = _T("class_number");
+//			update.SI[1].valueType = MYSQL_TYPE_LONG;
+//			update.SI[2].name = _T("teacher_number");
+//			update.SI[2].valueType = MYSQL_TYPE_LONG;
+//			CString tt;
+//			tt.Format(_T("%d"), _ttoi(m_aSchool.GetAt(index_class).CI[5].value) + 1);
+//			update.SI[0].value = tt;
+//			tt.Format(_T("%d"), _ttoi(m_aSchool.GetAt(index_class).CI[6].value) + 1);
+//			update.SI[1].value = tt;
+//			tt.Format(_T("%d"), _ttoi(m_aSchool.GetAt(index_class).CI[7].value) + 1);
+//			update.SI[2].value = tt;
+//			update.whereItemCount = 1;
+//			update.WI[0].name = _T("school_ID");
+//			update.WI[0].valueType = MYSQL_TYPE_STRING;
+//			update.WI[0].value = m_strSchoolNo;
+//			InsertUniform(&update);
+//		}
+//	}
+//END:
 	OnOK();
 }
 
@@ -332,48 +379,11 @@ void CClassInfoInput::OnCbnSelchangeName()
 	query.WI[0].value = class_ID;
 	CArray<rowItem, rowItem> rest;
 	Query(&query, rest);
-	
-	if(rest.GetCount() == 0){
-		school = _T("");
-		m_strSchoolNo = _T("");
-		m_strSchoolManager = _T("");
-		m_strSchoolMobile = _T("");
-		m_strSchoolFix = _T("");
-		m_strSchoolRemark = _T("");
-	}else{
-		m_strSchoolNo = rest.GetAt(0).CI[1].value;
-		int school_temp = 0;
-		for(school_temp = 0;school_temp<m_aSchool.GetCount(); school_temp++){
-			if(m_aSchool.GetAt(school_temp).CI[0].value.Compare(m_strSchoolNo) == 0){
-				break;
-			}
-		}
-		if(school_temp >= m_aSchool.GetCount()){
-			school = _T("");
-			m_strSchoolNo = _T("");
-			m_strSchoolManager = _T("");
-			m_strSchoolMobile = _T("");
-			m_strSchoolFix = _T("");
-			m_strSchoolRemark = _T("");
-		}else{
-			school = m_aSchool.GetAt(school_temp).CI[1].value;
-			m_strSchoolManager = m_aSchool.GetAt(school_temp).CI[2].value;
-			m_strSchoolMobile = m_aSchool.GetAt(school_temp).CI[3].value;
-			m_strSchoolFix = m_aSchool.GetAt(school_temp).CI[4].value;
-			m_strSchoolRemark = m_aSchool.GetAt(school_temp).CI[5].value;
-		}
-	}
-
 
 	SetDlgItemText(IDC_NO, class_ID);
 	SetDlgItemText(IDC_NAME, name);
 	SetDlgItemText(IDC_EDIT3, remark);
 	SetDlgItemText(IDC_SCHOOL, school);
-	SetDlgItemText(IDC_NO2, m_strSchoolNo);
-	SetDlgItemText(IDC_OFFICER2, m_strSchoolManager);
-	SetDlgItemText(IDC_MOBI2, m_strSchoolMobile);
-	SetDlgItemText(IDC_HOME2, m_strSchoolFix);
-	SetDlgItemText(IDC_REMARK2, m_strSchoolRemark);
 }
 
 void CClassInfoInput::OnCbnSelchangeSchool()
@@ -388,16 +398,6 @@ void CClassInfoInput::OnCbnSelchangeSchool()
 		if(m_aSchool.GetAt(school_temp).CI[1].value.Compare(strName) == 0)
 			break;
 	}
-	m_strSchoolNo = m_aSchool.GetAt(school_temp).CI[0].value;
 	school = m_aSchool.GetAt(school_temp).CI[1].value;
-	m_strSchoolManager = m_aSchool.GetAt(school_temp).CI[2].value;
-	m_strSchoolMobile = m_aSchool.GetAt(school_temp).CI[3].value;
-	m_strSchoolFix = m_aSchool.GetAt(school_temp).CI[4].value;
-	m_strSchoolRemark = m_aSchool.GetAt(school_temp).CI[5].value;
 	SetDlgItemText(IDC_SCHOOL, school);
-	SetDlgItemText(IDC_NO2, m_strSchoolNo);
-	SetDlgItemText(IDC_OFFICER2, m_strSchoolManager);
-	SetDlgItemText(IDC_MOBI2, m_strSchoolMobile);
-	SetDlgItemText(IDC_HOME2, m_strSchoolFix);
-	SetDlgItemText(IDC_REMARK2, m_strSchoolRemark);
 }

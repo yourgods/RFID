@@ -20,6 +20,8 @@ static HANDLE hStr;
 static unsigned char rx_data[1024];
 static OVERLAPPED m_osRead, m_osWrite; // 用于重叠读/写
 
+void procFunction(CString strName, CString strStudentID, CString strPhone, CRFIDprototypeDlg *pWnd);
+
 static BOOL initVar()
 {
 	HANDLE hStr = theApp.hStr;
@@ -51,8 +53,12 @@ DWORD RXINT_Thread(PVOID pArg)
 #ifdef RFID_TEST
 		if(1)
 #else
+		//CString tt;
+		//tt.Format(_T("%d"), length);
+		//AfxMessageBox(tt);
 		if(length)
 #endif	
+
 		{
 			//Got Phone No., student name & student ID no.
 #ifndef RFID_TEST
@@ -115,80 +121,12 @@ DWORD RXINT_Thread(PVOID pArg)
 			//Read Student ID
 #ifndef RFID_TEST
 			//....
-			CString strStudentID;
+			CString strStudentID = _T("stud_01");
 #else
 			CString strStudentID = _T("stud_01");
 #endif
 
-			//Check either up or down bus
-			if(!pWnd->CheckDataExist(strName,strPhone))//说明上车
-			{
-				StructPerson structTemp;
-				structTemp.strName = strName;
-				structTemp.strID = strStudentID;
-				structTemp.strPhoneNum = strPhone;
-				structTemp.strUpStation = pWnd->m_strCurrentStation;
-				CTime Upt=CTime::GetCurrentTime();
-				CString strUpTime = Upt.Format(L"%Y-%m-%d %H:%M:%S");
-				structTemp.strUpTime = strUpTime;
-				structTemp.strDownStation = _T("");
-				structTemp.strDownTime = _T("");
-				structTemp.strUpMessage = "否";
-				structTemp.strDownMessage = "否";
-				strArray.Add(structTemp);
-
-				//判断是否超载
-				int itest = _ttoi(iniFile.m_strCount);
-				if(strArray.GetCount()>itest)
-				{
-					//PlaySound(L"\\ResidentFlash\\Sound\\Full.wav",NULL,SND_SYNC|SND_NODEFAULT);
-					//发送报警短信
-					CString strContent,strCenterNum,strPhoneEnd;
-					strCenterNum = SMSC;
-					strContent.Format(_T("%d"),strArray.GetCount());
-					strContent=_T("30,@该车已超载，承载人数为") + iniFile.m_strCount + _T(",实载") + strContent;
-					strPhoneEnd=_T("86")+iniFile.m_strPhoneNum;
-
-					SM_PARAM sm_param;
-					USES_CONVERSION;
-
-					CHAR* pch=W2A(strContent);
-					strcpy(sm_param.TP_UD, pch);
-
-					pch=W2A(strPhoneEnd);
-					strcpy(sm_param.TPA, pch);
-
-					pch=W2A(strCenterNum);
-					strcpy(sm_param.SCA, pch);
-
-					sm_param.TP_PID = 0;
-					sm_param.TP_DCS = GSM_UCS2;
-#ifdef USE_TRAFFIC
-					pWnd->gsm->PutSendMessage(&sm_param);
-#else
-					::gsmSendMessage(&sm_param);
-#endif	
-				}
-
-			}
-			else//下车
-			{
-				CTime Downt=CTime::GetCurrentTime();
-				CString strDownTime = Downt.Format(L"%Y-%m-%d %H:%M:%S");
-				StructPerson stTemp;
-				for (int j=0;j<strArray.GetCount();j++)
-				{
-					stTemp = strArray.GetAt(j);
-					if(strName==stTemp.strName&&strPhone==stTemp.strPhoneNum&&strStudentID==stTemp.strID)
-					{
-						stTemp.strDownStation = pWnd->m_strCurrentStation;
-						stTemp.strDownTime = strDownTime;
-						strArray.SetAt(j,stTemp);
-						break;
-					}
-				}
-				//DONE
-			}
+			procFunction(strName, strStudentID, strPhone, pWnd);
 			CString stPerNum;
 			int i = strArray.GetCount();
 			stPerNum.Format(L"人数: %d",i);
@@ -203,4 +141,77 @@ DWORD RXINT_Thread(PVOID pArg)
 #endif
 	}
 	return 0;
+}
+
+void procFunction(CString strName, CString strStudentID, CString strPhone, CRFIDprototypeDlg *pWnd)
+{
+	//Check either up or down bus
+	if(!pWnd->CheckDataExist(strName,strPhone))//说明上车
+	{
+		StructPerson structTemp;
+		structTemp.strName = strName;
+		structTemp.strID = strStudentID;
+		structTemp.strPhoneNum = strPhone;
+		structTemp.strUpStation = pWnd->m_strCurrentStation;
+		CTime Upt=CTime::GetCurrentTime();
+		CString strUpTime = Upt.Format(L"%Y-%m-%d %H:%M:%S");
+		structTemp.strUpTime = strUpTime;
+		structTemp.strDownStation = _T("");
+		structTemp.strDownTime = _T("");
+		structTemp.strUpMessage = "否";
+		structTemp.strDownMessage = "否";
+		strArray.Add(structTemp);
+
+		//判断是否超载
+		int itest = _ttoi(iniFile.m_strCount);
+		if(strArray.GetCount()>itest)
+		{
+			//PlaySound(L"\\ResidentFlash\\Sound\\Full.wav",NULL,SND_SYNC|SND_NODEFAULT);
+			//发送报警短信
+			CString strContent,strCenterNum,strPhoneEnd;
+			strCenterNum = SMSC;
+			strContent.Format(_T("%d"),strArray.GetCount());
+			strContent=_T("30,@该车已超载，承载人数为") + iniFile.m_strCount + _T(",实载") + strContent;
+			strPhoneEnd=_T("86")+iniFile.m_strPhoneNum;
+
+			SM_PARAM sm_param;
+			USES_CONVERSION;
+
+			CHAR* pch=W2A(strContent);
+			strcpy(sm_param.TP_UD, pch);
+
+			pch=W2A(strPhoneEnd);
+			strcpy(sm_param.TPA, pch);
+
+			pch=W2A(strCenterNum);
+			strcpy(sm_param.SCA, pch);
+
+			sm_param.TP_PID = 0;
+			sm_param.TP_DCS = GSM_UCS2;
+#ifdef USE_TRAFFIC
+			pWnd->gsm->PutSendMessage(&sm_param);
+#else
+			::gsmSendMessage(&sm_param);
+#endif	
+		}
+
+	}
+	else//下车
+	{
+		CTime Downt=CTime::GetCurrentTime();
+		CString strDownTime = Downt.Format(L"%Y-%m-%d %H:%M:%S");
+		StructPerson stTemp;
+		for (int j=0;j<strArray.GetCount();j++)
+		{
+			stTemp = strArray.GetAt(j);
+			if(strName==stTemp.strName&&strPhone==stTemp.strPhoneNum&&strStudentID==stTemp.strID)
+			{
+				stTemp.strDownStation = pWnd->m_strCurrentStation;
+				stTemp.strDownTime = strDownTime;
+				strArray.SetAt(j,stTemp);
+				break;
+			}
+		}
+		//DONE
+	}
 }

@@ -37,10 +37,5 @@ protected:
 	virtual void PreInitDialog();
 public:
 	afx_msg void OnCbnSelchangeName();
-	CString m_strSchoolNo;
-	CString m_strSchoolManager;
-	CString m_strSchoolMobile;
-	CString m_strSchoolFix;
-	CString m_strSchoolRemark;
 	afx_msg void OnCbnSelchangeSchool();
 };

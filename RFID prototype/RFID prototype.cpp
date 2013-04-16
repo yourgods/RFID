@@ -27,7 +27,7 @@ CRFIDprototypeApp::CRFIDprototypeApp()
 	// TODO: 在此处添加构造代码，
 	// 将所有重要的初始化放置在 InitInstance 中
 	m_strPort=GSM_COM;
-	m_strRate="9600";
+	m_strRate=_T("9600");
 	m_strSmsc=SMSC;
 	hStr=INVALID_HANDLE_VALUE;
 }
@@ -120,11 +120,8 @@ BOOL CRFIDprototypeApp::CheckGSM()
 	int nRate;
 	nRate = _ttoi(m_strRate);
 
-	char *port = UnicodeToAnsi(m_strPort.GetBuffer(m_strPort.GetLength()));
-
-	while (!::OpenComm(port, nRate))
+	while (!::OpenComm(m_strPort, nRate))
 	{
-		delete[] port;
 		CString strError;
 		strError.Format(L"无法打开端口%s! 现在设置吗?", m_strPort);
 		if (AfxMessageBox(strError, MB_YESNO) == IDNO) return FALSE;
@@ -144,7 +141,6 @@ BOOL CRFIDprototypeApp::CheckGSM()
 		{
 			return FALSE;
 		}
-		port = UnicodeToAnsi(m_strPort.GetBuffer(m_strPort.GetLength()));
 	}
 
 	if (!gsmInit())
@@ -152,6 +148,7 @@ BOOL CRFIDprototypeApp::CheckGSM()
 		CString strError;
 		strError.Format(L"端口%s上没有发现MODEM!", m_strPort);
 		AfxMessageBox(strError, MB_OK);
+		CloseComm();
 		return FALSE;
 	}
 
@@ -171,6 +168,7 @@ BOOL CRFIDprototypeApp::CheckGSM()
  		}
  		else
  		{
+			CloseComm();
  			return FALSE;
  		}
 	}
@@ -184,7 +182,7 @@ BOOL CRFIDprototypeApp::CheckRFID()
 		OPEN_EXISTING, 0, 0);
 	if (INVALID_HANDLE_VALUE == hStr)
 	{
-		AfxMessageBox(L"无法打开RFID COM1:!");
+		AfxMessageBox(L"无法打开RFID COM2:!");
 		return FALSE;
 	}
 	else

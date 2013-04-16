@@ -24,14 +24,9 @@
 #define IDC_RATE                        1001
 #define IDC_OFFICER                     1002
 #define IDC_CENTER                      1002
-#define IDC_NO2                         1002
 #define IDC_MOBI                        1003
-#define IDC_OFFICER2                    1003
 #define IDC_HOME                        1004
-#define IDC_MOBI2                       1004
 #define IDC_REMARK                      1005
-#define IDC_HOME2                       1005
-#define IDC_REMARK2                     1006
 #define IDC_EDIT3                       1008
 #define IDC_SCHOOL                      1009
 #define IDC_AGE                         1012
@@ -46,7 +41,7 @@
 #define IDC_EDIT4                       1023
 #define IDC_EDIT5                       1025
 #define IDC_EDIT6                       1027
-#define IDC_COMMAND1                    1032
+#define IDC_COMBO3                      1035
 #define ID_32771                        32771
 #define ID_32772                        32772
 
@@ -56,7 +51,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        139
 #define _APS_NEXT_COMMAND_VALUE         32773
-#define _APS_NEXT_CONTROL_VALUE         1033
+#define _APS_NEXT_CONTROL_VALUE         1036
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

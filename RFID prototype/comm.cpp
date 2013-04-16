@@ -10,7 +10,7 @@ HANDLE hComm;
 //       nParity - 奇偶校验
 //       nByteSize - 数据字节宽度
 //       nStopBits - 停止位
-BOOL OpenComm(const char* pPort, int nBaudRate, int nParity, int nByteSize, int nStopBits)
+BOOL OpenComm(CString port, int nBaudRate, int nParity, int nByteSize, int nStopBits)
 {
 	DCB dcb;		// 串口控制块
 	COMMTIMEOUTS timeouts = {	// 串口超时控制参数
@@ -20,7 +20,6 @@ BOOL OpenComm(const char* pPort, int nBaudRate, int nParity, int nByteSize, int 
 		1,					// 写操作时每字符的时间: 1 ms (n个字符总共为n ms)
 		100};				// 基本的(额外的)写超时时间: 100 ms
 
-	CString port(pPort);
 	hComm = CreateFile(port,	// 串口名称或设备路径
 			GENERIC_READ | GENERIC_WRITE,	// 读写方式
 			0,				// 共享方式：独占
@@ -35,6 +34,7 @@ BOOL OpenComm(const char* pPort, int nBaudRate, int nParity, int nByteSize, int 
 
 	GetCommState(hComm, &dcb);		// 取DCB
 
+	dcb.fBinary = TRUE;
 	dcb.BaudRate = nBaudRate;
 	dcb.ByteSize = nByteSize;
 	dcb.Parity = nParity;
@@ -47,6 +47,8 @@ BOOL OpenComm(const char* pPort, int nBaudRate, int nParity, int nByteSize, int 
 	if(SetupComm(hComm, 4096, 4096) == 0){
 		AfxMessageBox(_T("Setup comm fail"));
 	}	// 设置输入输出缓冲区大小
+
+	PurgeComm(hComm, PURGE_RXCLEAR|PURGE_TXCLEAR);
 
 	if(SetCommTimeouts(hComm, &timeouts) == 0){
 		AfxMessageBox(_T("SetCommTimeout"));

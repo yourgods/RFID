@@ -94,16 +94,16 @@ BOOL CRFIDprototypeDlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// 设置小图标
 
 	//设置主界面为全屏并隐藏任务栏
-#ifdef DEBUG_YFH
-	HWND hTask = ::FindWindow(TEXT("HHTaskBar"), NULL);
-	if (hTask)
-	{
-	::ShowWindow(hTask, SW_HIDE);
-	}
-	DWORD dwState = SHFS_HIDETASKBAR | SHFS_HIDESTARTICON | SHFS_HIDESIPBUTTON;
-	SHFullScreen(this->GetSafeHwnd(), dwState);
-	::MoveWindow(this->GetSafeHwnd(), 0,0,GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN), TRUE); 
-#endif
+//#ifdef DEBUG_YFH
+//	HWND hTask = ::FindWindow(TEXT("HHTaskBar"), NULL);
+//	if (hTask)
+//	{
+//	::ShowWindow(hTask, SW_HIDE);
+//	}
+//	DWORD dwState = SHFS_HIDETASKBAR | SHFS_HIDESTARTICON | SHFS_HIDESIPBUTTON;
+//	SHFullScreen(this->GetSafeHwnd(), dwState);
+//	::MoveWindow(this->GetSafeHwnd(), 0,0,GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN), TRUE); 
+//#endif
 	// TODO: 在此添加额外的初始化代码
 	// 登陆校车安全系统并获取随车教师和司机编码
 	CLogin loginDlg;
@@ -275,8 +275,9 @@ void CRFIDprototypeDlg::OnBnClickedButton5()
 	if(gsm != NULL)
 		delete gsm;
 	noStation = 0;
-
-	RE_BOOT();
+	if(::MessageBox(NULL, _T("是否关机"), _T("关闭系统"), MB_YESNO) == IDYES){
+		RE_BOOT();
+	}
 	OnOK();
 }
 
